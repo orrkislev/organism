@@ -29,7 +29,7 @@ class Particle {
         let dir = p(random(-1, 1), random(-1, 1))
         if (this.connections.length > 0) {
             const other = choose(this.connections).body.pos
-            dir = myPoint.sub(other, this.pos).normalize(5).rotate(5)
+            dir = myPoint.sub(other, this.pos).normalize(5).rotate(random(-5,5))
         }
         newParticle.pos.add(dir)
         this.connect(newParticle, 1)
@@ -70,9 +70,9 @@ class Particle {
     }
 
     avoidWalls() {
-        const d = Math.sqrt((this.pos.x - width / 2) ** 2 + (this.pos.y - height / 2) ** 2)
-        if (d < width * .4) return
-        const force = myPoint.sub(this.pos, p(width / 2, height / 2)).normalize(4 / d)
+        const d = Math.sqrt((this.pos.x - width / 2) ** 2 + (this.pos.y - height / 2) ** 2) - width * .4
+        if (d < 0) return
+        const force = myPoint.sub(p(width / 2, height / 2),this.pos).normalize(d * 0.1)
         this.applyForce(force)
     }
 
@@ -83,8 +83,10 @@ class Particle {
             this.applyForce(force)
         })
         this.vel.add(this.acc)
-        if (this.vel.legnth > 1) this.vel.normalize()
-        this.vel.mult(.9).rotate(random(-1, 1))
+        // if (this.vel.length > 1) {
+            // this.vel.normalize()
+        // }
+        this.vel.mult(.9)
         this.pos.add(this.vel)
         this.acc.zero()
         this.age++

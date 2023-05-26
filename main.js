@@ -1,5 +1,5 @@
 const withEnds = false
-const minGoodDistance = 9
+const minGoodDistance = 1
 const penColor = 'black'
 const backgroundClr = 255
 
@@ -16,10 +16,10 @@ async function initImage() {
     fill(penColor)
 
     mainObj = new Organism(p(width / 2, height / 2))
-    mainObj.passChance = 0.999
+    mainObj.passChance = 0.8
     for (let i = 0; i < 6; i++) {
         await mainObj.grow(30)
-        await mainObj.closeBranches(3)
+        await mainObj.closeBranches(10)
     }
     // await mainObj.grow(20)
     // mainObj.passChance = 0.9
@@ -27,7 +27,7 @@ async function initImage() {
     await waitFrames(40)
 
     let extenders = []
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 5; i++) {
         const currParticle = choose(mainObj.particles)
         const newParticle = currParticle.extend()
         newParticle.seperationGroup = []
@@ -35,7 +35,7 @@ async function initImage() {
         extenders.push([newParticle])
     }
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 100; i++) {
         for (let j = 0; j < extenders.length; j++) {
             const ext = extenders[j]
             const newParticle = ext[ext.length - 1].extend()
@@ -43,15 +43,25 @@ async function initImage() {
             mainObj.particles.push(newParticle)
             extenders[j].push(newParticle)
         }
+        if (i%20==0){
+            const extender = choose(extenders)
+            const lastParticle = extender[extender.length - 1]
+            const newParticle = lastParticle.extend()
+            newParticle.seperationGroup = []
+            extenders.push([newParticle])
+            await mainObj.closeBranches(1)
+        }
         await waitFrames(2)
     }
-    await waitFrames(5)
+    await mainObj.closeBranches(30)
+    await waitFrames(25)
 
 
     // mainObj.passChance = 0.5
-    // for (let i = 0; i < 6; i++) {
-    // await mainObj.grow(30)
-    // await mainObj.closeBranches(30)
+    // for (let i = 0; i < 30; i++) {
+    //     // await mainObj.grow(30)
+    //     await mainObj.closeBranches(3)
+    //     await waitFrames(15)
     // }
 
 
