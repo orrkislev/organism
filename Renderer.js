@@ -2,7 +2,7 @@ const renderParams = {
     mirror: false,
     line: {
         show: true,
-        thickness: 2, opacity: 255,
+        thickness: 1, opacity: 255,
     },
     network: {
         show: false,
@@ -10,17 +10,17 @@ const renderParams = {
         opacity: 50, thickness: 1,
     },
     offsetLine: {
-        show: true,
+        show: false,
         thickness: 1, opacity: random(50, 255),
-        type: random(3),
-        distance: random(10), length: random(3),
-        density: random(.5, 1),
+        type: 1,
+        distance: 10, length: 1,
+        density: 1,
     },
     dots: {
         show: false,
-        opacity: 100,
-        sum: 50,
-        angle: random(Math.PI),
+        opacity: 50,
+        sum: 250, distX: 4, distY: 30,
+        angle: random(Math.PI)
     },
 }
 
@@ -33,21 +33,58 @@ function renderParticle(part) {
     renderNetwork(part)
 }
 
-function renderLine(part) {
+function renderParticle2(part) {
     if (!renderParams.line.show) return
     push()
+
+    strokeWeight(12)
+    stroke('white')
+    part.drawLines.forEach(other => {
+        line(part.pos.x, part.pos.y, other.x, other.y)
+    })
+
     stroke(0, renderParams.line.opacity)
-    const sw = (part.vel.length + 1) * renderParams.line.thickness
-    strokeWeight(sw)
+    let sw = (part.vel.length + 1) * renderParams.line.thickness * 3
+    // sw *= 10-5*part.num / particles.length
+    strokeWeight(constrain(sw, 0, 20))
     part.drawLines.forEach(other => {
         line(part.pos.x, part.pos.y, other.x, other.y)
     })
     pop()
 }
 
+function renderLine(part) {
+    if (!renderParams.line.show) return
+    push()
+
+    strokeWeight(16)
+    stroke('pink')
+    part.drawLines.forEach(other => {
+        line(part.pos.x, part.pos.y, other.x, other.y)
+    })
+
+    // strokeWeight(10)
+    // stroke('white')
+    // part.drawLines.forEach(other => {
+    //     line(part.pos.x, part.pos.y, other.x, other.y)
+    // })
+
+    // stroke(0, renderParams.line.opacity)
+    // let sw = (part.vel.length + 1) * renderParams.line.thickness * 3
+    // // sw *= 10-5*part.num / particles.length
+    // strokeWeight(constrain(sw, 0, 20))
+    // part.drawLines.forEach(other => {
+    //     line(part.pos.x, part.pos.y, other.x, other.y)
+    // })
+    pop()
+}
+
 function renderDots(part) {
     if (!renderParams.dots.show) return
-    if (!part.dotGraphics) part.dotGraphics = createDotsGraphics()
+    if (!part.dotGraphics) {
+        if (part.num > 10) part.dotGraphics = particles[part.num - 10].dotGraphics
+        part.dotGraphics = createDotsGraphics()
+    }
     push()
     translate(part.pos.x, part.pos.y)
     rotate(part.offsetDir.angle)
@@ -94,10 +131,6 @@ function renderNetwork(part) {
 }
 
 
-function renderParticle2(part) {
-}
-
-
 
 
 
@@ -109,10 +142,10 @@ function createDotsGraphics() {
     helperGraphics.clear()
     helperGraphics.stroke(0, renderParams.dots.opacity)
     helperGraphics.translate(50, 50)
-    // helperGraphics.rotate(1.9)
+    helperGraphics.rotate(renderParams.dots.angle)
     for (let i = 0; i < renderParams.dots.sum; i++) {
-        const x = random() * random() * 10 * (random() < .5 ? -1 : 1)
-        const y = random() * random() * 2 * (random() < .5 ? -1 : 1)
+        const x = random() * random() * renderParams.dots.distX * (random() < .5 ? -1 : 1)
+        const y = random() * random() * renderParams.dots.distY * (random() < .5 ? -1 : 1)
         helperGraphics.line(x, y, x, y)
     }
     return helperGraphics.get()

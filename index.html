@@ -5,7 +5,7 @@
     //---- do not edit the following code (you can indent as you wish)
     let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
     var fxhash = "oo" + Array(49).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
-    // fxhash = "ooReyy5j25YqTdLcJjCfFZAPqZ1s13LyXUR5NZb1j7cNGnDki5Z"
+    // fxhash = "oo6iCPDuDNt8RTiL9mQs8wkiSBdUQR1wzcacjNXuQwGkVsx7LgD"
     let b58dec = str=>[...str].reduce((p,c)=>p*alphabet.length+alphabet.indexOf(c)|0, 0)
     let fxhashTrunc = fxhash.slice(2)
     let regex = new RegExp(".{" + ((fxhashTrunc.length/4)|0) + "}", 'g')
@@ -47,6 +47,7 @@
   <script language="javascript" type="text/javascript" src="./bg.js"></script>
   <script language="javascript" type="text/javascript" src="./Vector.js"></script>
   <script language="javascript" type="text/javascript" src="./Renderer.js"></script>
+  <script language="javascript" type="text/javascript" src="./webgpu.js"></script>
 
 </head>
 

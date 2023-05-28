@@ -1,10 +1,16 @@
 
 let avrgTime1 = 0
 function updateParticles() {
-    for (let t = 0; t < 5; t++) {
-        for (let i = 0; i < particles.length; i++)
-            for (let j = i + 1; j < particles.length; j++)
-                particles[i].separationOther(particles[j])
+    for (let t = 0; t < 7; t++) {
+        particles.forEach(part=>part.hashClient.update())
+        particles.forEach(part => {
+            neighbors = hashGrid.query(part, 30)
+            neighbors.forEach(n => part.separationOther(n))
+        })
+
+        // for (let i = 0; i < particles.length; i++)
+        //     for (let j = i + 1; j < particles.length; j++)
+        //         particles[i].separationOther(particles[j])
 
         particles.forEach(part => {
             part.avoidWalls()
@@ -23,6 +29,8 @@ class Particle {
         this.organism = organism
         this.offsetDir = p(0, 0)
         particles.push(this)
+        this.seperated = []
+        this.hashClient = hashGrid.add(this)
     }
     extend() {
         const newParticle = new Particle(this.pos.clone(), this.organism)
@@ -32,10 +40,10 @@ class Particle {
             dir = myPoint.sub(other, this.pos).normalize(5).rotate(random(-5,5))
         }
         newParticle.pos.add(dir)
-        this.connect(newParticle, 1)
+        this.connect(newParticle, 5)
         return newParticle
     }
-    connect(other, targetLength) {
+    connect(other, targetLength = 5) {
         if (!targetLength) targetLength = this.pos.getDistance(other.pos)
         this.connections.push({ body: other, length: targetLength })
         other.connections.push({ body: this, length: targetLength })
@@ -54,17 +62,20 @@ class Particle {
 
     kill() {
         this.connections.forEach(c => c.body.disconnect(this))
-        particles = particles.filter(p => p != this)
+        particles = particles.filter(p1 => p1 != this)
+
     }
 
     separationOther(other) {
         if (this.seperationGroup && !this.seperationGroup.includes(other)) return
         if (other == this) return
         if (this.connections.find(c => c.body == other)) return
+        if (this.seperated.includes(other)) return
+        this.seperated.push(other)
 
         const d = this.pos.dist(other.pos)
         if (d < 1 || d > 30) return
-        const force = myPoint.sub(this.pos, other.pos).normalize(.5 / d)
+        const force = myPoint.sub(this.pos, other.pos).normalize(.2 / d)
         this.applyForce(force)
         other.applyForce(force.multiply(-1))
     }
@@ -83,13 +94,12 @@ class Particle {
             this.applyForce(force)
         })
         this.vel.add(this.acc)
-        // if (this.vel.length > 1) {
-            // this.vel.normalize()
-        // }
-        this.vel.mult(.9)
+        if (this.vel.length > 1) this.vel.normalize()
+        this.vel.mult(0.9)
         this.pos.add(this.vel)
         this.acc.zero()
         this.age++
+        this.seperated = []
     }
     applyForce(force) {
         this.acc.add(force)
@@ -104,7 +114,7 @@ class Particle {
         let dir = p(0, 0)
         this.connections.forEach(c => {
             const dirTo = myPoint.sub(c.body.pos,this.pos)
-            dir.add(dirTo.normalize().rotate(90))
+            dir.add(dirTo.clone().normalize().rotate(90))
             if (abs(dirTo.length - c.length) > minGoodDistance) return
             this.drawLines.push(c.body.pos)
         })

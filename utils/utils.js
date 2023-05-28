@@ -27,9 +27,9 @@ const randomRange = (range) => random(range[0], range[1])
 const round_random = (a = 1, b = 0) => Math.floor(random(a, b + 1))
 const choose = (arr) => arr[Math.floor(random(arr.length))]
 
-class PoissonDiscSampler{
+class PoissonDiscSampler {
     constructor(w, h, r, k = 30) {
-        this.w=w;this.h=h;this.r=r;this.k=k
+        this.w = w; this.h = h; this.r = r; this.k = k
         this.r2 = r * r
         this.cellSize = r / Math.SQRT2
         this.gridWidth = Math.ceil(w / this.cellSize)
@@ -110,10 +110,10 @@ function applyRemove(func) {
 }
 
 const quadTreeMax = 10
-class QuadTree{
+class QuadTree {
     constructor(x, y, w, h, parent) {
         this.x = x; this.y = y; this.w = w; this.h = h
-        this.topleft = p(x, y); this.topright = p(x + w, y); 
+        this.topleft = p(x, y); this.topright = p(x + w, y);
         this.bottomleft = p(x, y + h); this.bottomright = p(x + w, y + h)
         this.parent = parent
         this.points = []
@@ -155,21 +155,78 @@ class QuadTree{
     }
 
     query(particle, radius) {
-        if (this.queryHelper(particle,radius)){
-        // if (this.x + this.w < center.x - radius || this.x > center.x + radius || this.y + this.h < center.y - radius || this.y > center.y + radius) return
+        if (this.queryHelper(particle, radius)) {
+            // if (this.x + this.w < center.x - radius || this.x > center.x + radius || this.y + this.h < center.y - radius || this.y > center.y + radius) return
             if (this.points) return this.points
-            else return this.children.reduce((found,child) => found.concat(child.query(particle, radius)), []).filter(point=>point!=null)
+            else return this.children.reduce((found, child) => found.concat(child.query(particle, radius)), []).filter(point => point != null)
         }
         return []
     }
-    count(){
-        if(this.points) return this.points.length
+    count() {
+        if (this.points) return this.points.length
         else return this.children.reduce((sum, child) => sum + child.count(), 0)
     }
-    draw(){
-        stroke(255)
+    draw() {
+        stroke(0)
         noFill()
         rect(this.x, this.y, this.w, this.h)
-        if(this.children) this.children.forEach(child => child.draw())
+        if (this.children) this.children.forEach(child => child.draw())
     }
+}
+
+
+
+class HashGrid {
+    constructor(w, h, cellSize) {
+        this.w = w; this.h = h; this.cellSize = cellSize
+        this.gridWidth = Math.ceil(w / cellSize)
+        this.gridHeight = Math.ceil(h / cellSize)
+        this.grid = new Array(this.gridWidth * this.gridHeight).fill().map(() => [])
+    }
+    getCellXY(pos) {
+        const x = Math.floor(pos.x / this.cellSize)
+        const y = Math.floor(pos.y / this.cellSize)
+        return [x, y]
+    }
+    add(particle) {
+        const [x, y] = this.getCellXY(particle.pos)
+        const i = x + y * this.gridWidth
+        this.grid[i].push(particle)
+        return new HashGridClient(this, particle, x, y)
+    }
+    query(particle, radius) {
+        const x0 = Math.max(Math.floor((particle.pos.x - radius) / this.cellSize), 0)
+        const y0 = Math.max(Math.floor((particle.pos.y - radius) / this.cellSize), 0)
+        const x1 = Math.min(Math.ceil((particle.pos.x + radius) / this.cellSize), this.gridWidth)
+        const y1 = Math.min(Math.ceil((particle.pos.y + radius) / this.cellSize), this.gridHeight)
+
+        const found = []
+        for (let y = y0; y < y1; y++) {
+            for (let x = x0; x < x1; x++) {
+                const i = x + y * this.gridWidth
+                found.push(...this.grid[i])
+            }
+        }
+        return found
+    }
+    remove(particle, cellX, cellY) {
+        const i = cellX + cellY * this.gridWidth
+        const index = this.grid[i].indexOf(particle)
+        if (index > -1) this.grid[i].splice(index, 1)
+    }
+}
+
+class HashGridClient {
+    constructor(grid, particle, cellX, cellY) {
+        this.grid = grid; this.particle = particle; this.cellX = cellX; this.cellY = cellY
+    }
+    update() {
+        const [newX, newY] = this.grid.getCellXY(this.particle.pos)
+        if (newX != this.cellX || newY != this.cellY) {
+            this.grid.remove(this.particle, this.cellX, this.cellY)
+            this.grid.add(this.particle)
+            this.cellX = newX; this.cellY = newY
+        }
+    }
+
 }

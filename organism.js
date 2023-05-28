@@ -199,6 +199,5 @@ class Organism {
     }
     show2(){
         this.particles.forEach(renderParticle2)
-
     }
 }
