@@ -1,7 +1,7 @@
 
 let avrgTime1 = 0
-function updateParticles() {
-    for (let t = 0; t < 7; t++) {
+function updateParticles(times = 7) {
+    for (let t = 0; t < times; t++) {
         particles.forEach(part=>part.hashClient.update())
         particles.forEach(part => {
             neighbors = hashGrid.query(part, 30)

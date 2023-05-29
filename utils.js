@@ -1,12 +1,18 @@
 let promises = []
-function tick() {
-    promises = promises.filter(p => {
-        if (p.frame <= frameCount) {
-            p.resolve()
-            return false
-        }
-        return true
-    })
+let tickCount = 0
+let lastTick = 0
+function tick(tickSize = 1) {
+    tickCount += tickSize
+    while (tickCount > lastTick + 1) {
+        promises = promises.filter(p => {
+            if (p.frame <= frameCount) {
+                p.resolve()
+                return false
+            }
+            return true
+        })
+        lastTick++
+    }
 }
 async function waitFrames(num) {
     const currFrameCount = frameCount

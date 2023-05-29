@@ -129,10 +129,11 @@ let areas = []
 function draw() {
     background(backgroundClr)
     // meshGradientBg()
-    updateParticles()
+    const n = mouseX / width
+    updateParticles(n * 14)
     organisms.forEach(o => o.show())
     organisms.forEach(o => o.show2())
-    tick()
+    tick(n)
 
 
     if (renderParams.mirror) {
