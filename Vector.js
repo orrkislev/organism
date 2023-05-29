@@ -1,6 +1,7 @@
-class myPoint extends paper.Point{
+class myPoint{
     constructor(x, y){
-        super(x,y)
+        this.x = x; this.y = y
+        // super(x,y)
     }
     add(other){
         this.x += other.x
@@ -22,6 +23,9 @@ class myPoint extends paper.Point{
     }
     dist(other){
         return Math.sqrt((this.x-other.x)*(this.x-other.x) + (this.y-other.y)*(this.y-other.y))
+    }
+    distxy(x, y){
+        return Math.sqrt((this.x-x)*(this.x-x) + (this.y-y)*(this.y-y))
     }
     normalize(newLength = 1){
         const l = this.length

@@ -1,8 +1,8 @@
 const renderParams = {
-    mirror: false,
+    mirror: random()<0.5,
     line: {
         show: true,
-        thickness: 1, opacity: 255,
+        thickness: 2, opacity: 255,
     },
     network: {
         show: false,

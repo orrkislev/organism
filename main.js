@@ -1,20 +1,23 @@
 const withEnds = false
-const minGoodDistance = 20
+const minGoodDistance = 15
 const penColor = 'black'
 const backgroundClr = 255
 
 async function setup() {
-    initP5(true)
-    density = pixelDensity()
-    initPaper(false)
+    width = window.innerWidth
+    height = window.innerHeight
+    // initP5(false)
+    // density = pixelDensity()
+    // initPaper(false)
 
     wallRadius = min(width, height) / 2
     hashGrid = new HashGrid(width, height, 50)
 
+    initSVG()
     initCounter = 0
     initImage()
 
-    noLoop()
+    // noLoop()
     await myDraw()
 }
 
@@ -51,11 +54,10 @@ async function initImage() {
     //     // await waitFrames(5)
     // }
 
-    // for (let i = 0; i < 30; i++) {
+    // for (let i = 0; i < 50; i++) {
     //     for (let j = 0; j < extenders.length; j++) {
     //         const ext = extenders[j]
     //         const newParticle = ext[ext.length - 1].extend()
-    //         newParticle.applyForce(p(.5,.5))
     //         mainObj.particles.push(newParticle)
     //         extenders[j].push(newParticle)
     //     }
@@ -67,9 +69,9 @@ async function initImage() {
     //     //     extenders.push([newParticle])
     //     //     await mainObj.closeBranches(1)
     //     // }
-    //     await waitFrames(1)
+    //     await waitFrames(10)
     // }
-    // await waitFrames(25)
+    // await waitFrames(30)
     // await mainObj.closeBranches(30)
 
     // await waitFrames(25)
@@ -83,7 +85,9 @@ async function initImage() {
 
 
 
-
+    /// -----------------
+    // make a bunch of other organisms
+    /// -----------------
     mainObj.passChance = 0.998
     let count = 0
     others = []
@@ -99,6 +103,9 @@ async function initImage() {
         count += 3
     }
 
+    /// -----------------
+    // connect the other organisms
+    /// -----------------
     await waitFrames(25)
     while (others.length > 1) {
         other1 = choose(others)
@@ -135,8 +142,9 @@ async function myDraw() {
         // meshGradientBg()
         const n = 1
         updateParticles(n * 7)
-        organisms.forEach(o => o.show())
-        organisms.forEach(o => o.show2())
+        // organisms.forEach(o => o.show())
+        // organisms.forEach(o => o.show2())
+        organisms.forEach(o => o.updateSVG())
         tick(n)
 
 

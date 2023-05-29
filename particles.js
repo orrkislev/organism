@@ -2,7 +2,7 @@
 let avrgTime1 = 0
 function updateParticles(times = 7) {
     for (let t = 0; t < times; t++) {
-        particles.forEach(part=>part.hashClient.update())
+        particles.forEach(part => part.hashClient.update())
         particles.forEach(part => {
             neighbors = hashGrid.query(part, 30)
             neighbors.forEach(n => part.separationOther(n))
@@ -37,7 +37,7 @@ class Particle {
         let dir = p(random(-1, 1), random(-1, 1))
         if (this.connections.length > 0) {
             const other = choose(this.connections).body.pos
-            dir = myPoint.sub(other, this.pos).normalize(5).rotate(random(-5,5))
+            dir = myPoint.sub(other, this.pos).normalize(5).rotate(random(-5, 5))
         }
         newParticle.pos.add(dir)
         this.connect(newParticle, 5)
@@ -45,10 +45,12 @@ class Particle {
     }
     connect(other, targetLength = 5) {
         if (!targetLength) targetLength = this.pos.getDistance(other.pos)
-        this.connections.push({ body: other, length: targetLength })
+        this.connections.push({ body: other, length: targetLength, svg: null })
         other.connections.push({ body: this, length: targetLength })
     }
     disconnect(other) {
+        const connection = this.connections.find(c => c.body == other)
+        if (connection.svg) Object.values(connection.svg).forEach(svg => svg.remove())
         this.connections = this.connections.filter(c => c.body != other)
         other.connections = other.connections.filter(c => c.body != this)
     }
@@ -77,13 +79,13 @@ class Particle {
         if (d < 1 || d > 30) return
         const force = myPoint.sub(this.pos, other.pos).normalize(.2 / d)
         this.applyForce(force)
-        other.applyForce(force.multiply(-1))
+        other.applyForce(force.mult(-1))
     }
 
     avoidWalls() {
-        const d = Math.sqrt((this.pos.x - width / 2) ** 2 + (this.pos.y - height / 2) ** 2) - wallRadius
+        const d = this.pos.distxy(width / 2, height / 2) - wallRadius
         if (d < 0) return
-        const force = myPoint.sub(p(width / 2, height / 2),this.pos).normalize(d * 0.1)
+        const force = myPoint.sub(p(width / 2, height / 2), this.pos).normalize(d * 0.1)
         this.applyForce(force)
     }
 
@@ -113,11 +115,37 @@ class Particle {
 
         let dir = p(0, 0)
         this.connections.forEach(c => {
-            const dirTo = myPoint.sub(c.body.pos,this.pos)
+            const dirTo = myPoint.sub(c.body.pos, this.pos)
             dir.add(dirTo.clone().normalize().rotate(90))
             if (abs(dirTo.length - c.length) > minGoodDistance) return
             this.drawLines.push(c.body.pos)
         })
         this.offsetDir = pointLerp(this.offsetDir, dir, .3)
+    }
+
+    updateSVG() {
+        this.connections.forEach(c => {
+            if ('svg' in c) {
+                if (!c.svg) {
+                    c.svg = { main: new SVGLine(this.pos, c.body.pos) }
+                    if (renderParams.mirror) c.svg.mirror = new SVGLine(this.pos, c.body.pos)
+                }
+                const showLine = this.pos.dist(c.body.pos) < minGoodDistance && !(renderParams.mirror && this.pos.x < width / 2)
+
+                let sw = (this.vel.length + 1) * renderParams.line.thickness
+                // sw *= 2-2*this.num / particles.length
+                sw = constrain(sw, 0, 20)
+
+                c.svg.main.set(this.pos, c.body.pos)
+                c.svg.main.strokeWeight(sw)
+                c.svg.main.visible(showLine)
+
+                if (renderParams.mirror) {
+                    c.svg.mirror.setxyxy(width - this.pos.x, this.pos.y, width - c.body.pos.x, c.body.pos.y)
+                    c.svg.mirror.strokeWeight(sw)
+                    c.svg.mirror.visible(showLine)
+                }
+            }
+        })
     }
 }

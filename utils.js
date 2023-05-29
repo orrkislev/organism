@@ -15,8 +15,8 @@ function tick(tickSize = 1) {
     // }
     tickCount++
 
-    if (tickCount % 60 == 0) {
-        console.log(round(60 / (performance.now() - tickTime) * 1000) + 'fps, ' + particles.length + ' particles')
+    if (tickCount % 300 == 0) {
+        console.log(round(300 / (performance.now() - tickTime) * 1000) + 'fps, ' + particles.length + ' particles')
         tickTime = performance.now()
     }
 }

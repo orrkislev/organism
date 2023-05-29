@@ -50,7 +50,7 @@ class Organism {
             const ends = this.particles.filter(p => p.isEnding())
             if (ends.length < 2) return false
             const e1 = choose(ends)
-            const ends2 = ends.filter(e => e != e1).sort((a, b) => a.pos.getDistance(e1.pos) - b.pos.getDistance(e1.pos))
+            const ends2 = ends.filter(e => e != e1).sort((a, b) => a.pos.dist(e1.pos) - b.pos.dist(e1.pos))
             const e2 = ends2[0]
             e1.connect(e2, 1)
             await waitFrames(1)
@@ -199,5 +199,8 @@ class Organism {
     }
     show2(){
         this.particles.forEach(renderParticle2)
+    }
+    updateSVG(){
+        this.particles.forEach(p=>p.updateSVG())
     }
 }
