@@ -9,7 +9,7 @@ function setup() {
     initPaper(false)
 
     wallRadius = min(width, height) / 2
-    hashGrid = new HashGrid(width,height,20)
+    hashGrid = new HashGrid(width,height,60)
 
     initCounter = 0
     initImage()

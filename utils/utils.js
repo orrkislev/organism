@@ -184,9 +184,12 @@ class HashGrid {
         this.grid = new Array(this.gridWidth * this.gridHeight).fill().map(() => [])
     }
     getCellXY(pos) {
-        const x = Math.max(Math.min(Math.floor(pos.x / this.cellSize), this.gridWidth - 1), 0)
-        const y = Math.max(Math.min(Math.floor(pos.y / this.cellSize), this.gridHeight - 1), 0)
-        return [x, y]
+        const x = Math.floor(pos.x / this.cellSize)
+        const y = Math.floor(pos.y / this.cellSize)
+        return [
+            Math.max(Math.min(x, this.gridWidth - 1), 0),
+            Math.max(Math.min(y, this.gridHeight - 1), 0)
+        ]
     }
     add(particle) {
         const [x, y] = this.getCellXY(particle.pos)
