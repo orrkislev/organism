@@ -21,7 +21,7 @@ function tick(tickSize = 1) {
     }
 }
 async function waitFrames(num) {
-    const currFrameCount = frameCount
+    const currFrameCount = tickCount
     const newPromise = new Promise((resolve, reject) => {
         promises.push({ frame: currFrameCount + num, resolve })
     })
@@ -42,3 +42,11 @@ function line_vvm(v1, v2, mag) {
 function xy2i(x, y) {
     return 4 * (y * density * width * density + x * density);
 }
+
+
+const min = Math.min
+const max = Math.max
+const abs = Math.abs
+const floor = Math.floor
+const round = Math.round
+const constrain = (n, min, max) => Math.min(Math.max(n, min), max)

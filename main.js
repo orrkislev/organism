@@ -20,10 +20,11 @@ async function setup() {
     // noLoop()
     await myDraw()
 }
+setup()
 
 async function initImage() {
-    stroke(penColor)
-    fill(penColor)
+    // stroke(penColor)
+    // fill(penColor)
 
     mainObj = new Organism(p(width / 2, height / 2))
     for (let i = 0; i < 1; i++) {
@@ -138,7 +139,7 @@ async function initImage() {
 let areas = []
 async function myDraw() {
     while (true) {
-        background(backgroundClr)
+        // background(backgroundClr)
         // meshGradientBg()
         const n = 1
         updateParticles(n * 7)
@@ -149,8 +150,8 @@ async function myDraw() {
 
 
         if (renderParams.mirror) {
-            scale(-1, 1)
-            copy(0, 0, width / 2, height, -width, 0, width / 2, height)
+            // scale(-1, 1)
+            // copy(0, 0, width / 2, height, -width, 0, width / 2, height)
             // scale(1, -1)
             // copy(0, 0, width, height/2, 0, -height, width, height/2)
         }
