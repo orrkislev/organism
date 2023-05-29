@@ -20,18 +20,18 @@ async function initImage() {
     fill(penColor)
 
     mainObj = new Organism(p(width / 2, height / 2))
-    // for (let i = 0; i < 1; i++) {
-    //     mainObj.passChance = 0.9
-    //     await mainObj.grow(3)
-    //     mainObj.passChance = 0.999
-    //     await mainObj.grow(20)
-    //     await mainObj.closeBranches(7)
-    //     await waitFrames(2)
-    // }
-    // // mainObj.passChance = 0.9
-    // // await mainObj.grow(20)
-    // // await mainObj.grow(20)
-    // await waitFrames(40)
+    for (let i = 0; i < 1; i++) {
+        mainObj.passChance = 0.9
+        await mainObj.grow(3)
+        mainObj.passChance = 0.999
+        await mainObj.grow(5)
+        await mainObj.closeBranches(7)
+        await waitFrames(2)
+    }
+    // mainObj.passChance = 0.9
+    // await mainObj.grow(20)
+    // await mainObj.grow(20)
+    await waitFrames(40)
 
     // mainObj.passChance = 0.999
     // let extenders = []
@@ -85,8 +85,8 @@ async function initImage() {
     let count = 0
     others = []
     while (count < 150){
-        // newOrg = await mainObj.extend()
-        newOrg = new Organism(p(width / 2, height / 2).add(pointFromAngle(random(360), width/2)))
+        newOrg = await mainObj.extend()
+        // newOrg = new Organism(p(width / 2, height / 2).add(pointFromAngle(random(360), width/2)))
         if (!newOrg) break
         newOrg.passChance = 1
         const r = round_random(3,15)
@@ -102,11 +102,12 @@ async function initImage() {
         other2 = choose(others)
         if (other1 == other2) continue
         const lastParticle1 = other1.particles[other1.particles.length - 1]
-        const lastParticle2 = choose(other2.particles)
+        const otherIndex = floor(random() * random(other2.particles.length - 1))
+        const lastParticle2 = other2.particles[otherIndex]
         lastParticle1.connect(lastParticle2)
         other1.particles.push(...other2.particles)
         others = others.filter(o => o != other2)
-        await waitFrames(4)
+        await waitFrames(1)
     }
 
     // areas = await mainObj.getAreas()
