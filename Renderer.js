@@ -37,11 +37,11 @@ function renderParticle2(part) {
     if (!renderParams.line.show) return
     push()
 
-    strokeWeight(12)
-    stroke('white')
-    part.drawLines.forEach(other => {
-        line(part.pos.x, part.pos.y, other.x, other.y)
-    })
+    // strokeWeight(12)
+    // stroke('white')
+    // part.drawLines.forEach(other => {
+    //     line(part.pos.x, part.pos.y, other.x, other.y)
+    // })
 
     stroke(0, renderParams.line.opacity)
     let sw = (part.vel.length + 1) * renderParams.line.thickness * 3
@@ -57,11 +57,11 @@ function renderLine(part) {
     if (!renderParams.line.show) return
     push()
 
-    strokeWeight(16)
-    stroke('pink')
-    part.drawLines.forEach(other => {
-        line(part.pos.x, part.pos.y, other.x, other.y)
-    })
+    // strokeWeight(16)
+    // stroke('pink')
+    // part.drawLines.forEach(other => {
+    //     line(part.pos.x, part.pos.y, other.x, other.y)
+    // })
 
     // strokeWeight(10)
     // stroke('white')

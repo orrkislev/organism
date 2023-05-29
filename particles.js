@@ -81,7 +81,7 @@ class Particle {
     }
 
     avoidWalls() {
-        const d = Math.sqrt((this.pos.x - width / 2) ** 2 + (this.pos.y - height / 2) ** 2) - width * .4
+        const d = Math.sqrt((this.pos.x - width / 2) ** 2 + (this.pos.y - height / 2) ** 2) - wallRadius
         if (d < 0) return
         const force = myPoint.sub(p(width / 2, height / 2),this.pos).normalize(d * 0.1)
         this.applyForce(force)

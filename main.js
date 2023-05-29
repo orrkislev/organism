@@ -1,5 +1,5 @@
 const withEnds = false
-const minGoodDistance = 9
+const minGoodDistance = 20
 const penColor = 'black'
 const backgroundClr = 255
 
@@ -8,8 +8,9 @@ function setup() {
     density = pixelDensity()
     initPaper(false)
 
+    wallRadius = min(width, height) / 2
     hashGrid = new HashGrid(width,height,20)
-    
+
     initCounter = 0
     initImage()
 }
@@ -19,18 +20,18 @@ async function initImage() {
     fill(penColor)
 
     mainObj = new Organism(p(width / 2, height / 2))
-    for (let i = 0; i < 1; i++) {
-        mainObj.passChance = 0.9
-        await mainObj.grow(3)
-        mainObj.passChance = 0.999
-        await mainObj.grow(20)
-        await mainObj.closeBranches(7)
-        await waitFrames(2)
-    }
-    // mainObj.passChance = 0.9
-    // await mainObj.grow(20)
-    // await mainObj.grow(20)
-    await waitFrames(40)
+    // for (let i = 0; i < 1; i++) {
+    //     mainObj.passChance = 0.9
+    //     await mainObj.grow(3)
+    //     mainObj.passChance = 0.999
+    //     await mainObj.grow(20)
+    //     await mainObj.closeBranches(7)
+    //     await waitFrames(2)
+    // }
+    // // mainObj.passChance = 0.9
+    // // await mainObj.grow(20)
+    // // await mainObj.grow(20)
+    // await waitFrames(40)
 
     // mainObj.passChance = 0.999
     // let extenders = []
@@ -83,8 +84,9 @@ async function initImage() {
     mainObj.passChance = 0.998
     let count = 0
     others = []
-    while (count < 50){
-        newOrg = await mainObj.extend()
+    while (count < 150){
+        // newOrg = await mainObj.extend()
+        newOrg = new Organism(p(width / 2, height / 2).add(pointFromAngle(random(360), width/2)))
         if (!newOrg) break
         newOrg.passChance = 1
         const r = round_random(3,15)
@@ -100,13 +102,12 @@ async function initImage() {
         other2 = choose(others)
         if (other1 == other2) continue
         const lastParticle1 = other1.particles[other1.particles.length - 1]
-        const lastParticle2 = other2.particles[0]
+        const lastParticle2 = choose(other2.particles)
         lastParticle1.connect(lastParticle2)
         other1.particles.push(...other2.particles)
         others = others.filter(o => o != other2)
         await waitFrames(4)
     }
-    if (initCounter++ < 5) initImage()
 
     // areas = await mainObj.getAreas()
     // areas = areas.slice(0, 10)
