@@ -1,17 +1,23 @@
 let promises = []
 let tickCount = 0
-let lastTick = 0
+let tickTime = 0
 function tick(tickSize = 1) {
-    tickCount += tickSize
-    while (tickCount > lastTick + 1) {
+    // tickCount += tickSize
+    // while (tickCount > lastTick + 1) {
         promises = promises.filter(p => {
-            if (p.frame <= frameCount) {
+            if (p.frame <= tickCount) {
                 p.resolve()
                 return false
             }
             return true
         })
-        lastTick++
+        // lastTick++
+    // }
+    tickCount++
+
+    if (tickCount % 60 == 0) {
+        console.log(round(60 / (performance.now() - tickTime) * 1000) + 'fps, ' + particles.length + ' particles')
+        tickTime = performance.now()
     }
 }
 async function waitFrames(num) {

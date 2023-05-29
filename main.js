@@ -3,16 +3,19 @@ const minGoodDistance = 20
 const penColor = 'black'
 const backgroundClr = 255
 
-function setup() {
+async function setup() {
     initP5(true)
     density = pixelDensity()
     initPaper(false)
 
     wallRadius = min(width, height) / 2
-    hashGrid = new HashGrid(width,height,60)
+    hashGrid = new HashGrid(width, height, 50)
 
     initCounter = 0
     initImage()
+
+    noLoop()
+    await myDraw()
 }
 
 async function initImage() {
@@ -84,12 +87,12 @@ async function initImage() {
     mainObj.passChance = 0.998
     let count = 0
     others = []
-    while (count < 150){
+    while (count < 150) {
         newOrg = await mainObj.extend()
         // newOrg = new Organism(p(width / 2, height / 2).add(pointFromAngle(random(360), width/2)))
         if (!newOrg) break
         newOrg.passChance = 1
-        const r = round_random(3,15)
+        const r = round_random(3, 15)
         newOrg.grow(3)
         await newOrg.closeBranches(2)
         others.push(newOrg)
@@ -97,7 +100,7 @@ async function initImage() {
     }
 
     await waitFrames(25)
-    while (others.length > 1){
+    while (others.length > 1) {
         other1 = choose(others)
         other2 = choose(others)
         if (other1 == other2) continue
@@ -126,25 +129,24 @@ async function initImage() {
 
 
 let areas = []
-function draw() {
-    background(backgroundClr)
-    // meshGradientBg()
-    const n = mouseX / width
-    updateParticles(n * 14)
-    organisms.forEach(o => o.show())
-    organisms.forEach(o => o.show2())
-    tick(n)
+async function myDraw() {
+    while (true) {
+        background(backgroundClr)
+        // meshGradientBg()
+        const n = 1
+        updateParticles(n * 7)
+        organisms.forEach(o => o.show())
+        organisms.forEach(o => o.show2())
+        tick(n)
 
 
-    if (renderParams.mirror) {
-        scale(-1, 1)
-        copy(0, 0, width / 2, height, -width, 0, width / 2, height)
-        // scale(1, -1)
-        // copy(0, 0, width, height/2, 0, -height, width, height/2)
+        if (renderParams.mirror) {
+            scale(-1, 1)
+            copy(0, 0, width / 2, height, -width, 0, width / 2, height)
+            // scale(1, -1)
+            // copy(0, 0, width, height/2, 0, -height, width, height/2)
+        }
+
+        await timeout(1)
     }
-
-    if (frameCount % 50 == 0) {
-        console.log(`${round(frameRate())}fps, ${particles.length} particles`)
-    }
-
 }
