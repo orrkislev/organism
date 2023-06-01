@@ -1,29 +1,3 @@
-const renderParams = {
-    mirror: random()<0.5,
-    line: {
-        show: true,
-        thickness: 2, opacity: 255,
-    },
-    network: {
-        show: false,
-        points: round_random(4), minDist: 2, maxDist: round_random(10),
-        opacity: 50, thickness: 1,
-    },
-    offsetLine: {
-        show: false,
-        thickness: 1, opacity: random(50, 255),
-        type: 1,
-        distance: 10, length: 1,
-        density: 1,
-    },
-    dots: {
-        show: false,
-        opacity: 50,
-        sum: 250, distX: 4, distY: 30,
-        angle: random(Math.PI)
-    },
-}
-
 function renderParticle(part) {
     part.preRender()
     renderLine(part)

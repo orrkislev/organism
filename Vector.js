@@ -1,7 +1,6 @@
 class myPoint{
     constructor(x, y){
         this.x = x; this.y = y
-        // super(x,y)
     }
     add(other){
         this.x += other.x
@@ -20,6 +19,9 @@ class myPoint{
     }
     get length(){
         return Math.sqrt(this.x*this.x + this.y*this.y)
+    }
+    get angle(){
+        return Math.atan2(this.y, this.x)
     }
     dist(other){
         return Math.sqrt((this.x-other.x)*(this.x-other.x) + (this.y-other.y)*(this.y-other.y))
@@ -47,6 +49,11 @@ class myPoint{
     }
     clone(){
         return new myPoint(this.x, this.y)
+    }
+    lerp(other, t){
+        this.x = this.x*(1-t) + other.x*t
+        this.y = this.y*(1-t) + other.y*t
+        return this
     }
 
     static add(a, b){
