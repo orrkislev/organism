@@ -1,6 +1,5 @@
 let promises = []
 let tickCount = 0
-let tickTime = 0
 function tick() {
     promises = promises.filter(p => {
         if (p.frame <= tickCount) {
@@ -10,11 +9,6 @@ function tick() {
         return true
     })
     tickCount++
-
-    // if (tickCount % 300 == 0) {
-        // console.log(round(300 / (performance.now() - tickTime) * 1000) + 'fps, ' + particles.length + ' particles')
-        // tickTime = performance.now()
-    // }
 }
 async function waitFrames(num) {
     const currFrameCount = tickCount

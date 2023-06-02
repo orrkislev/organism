@@ -72,4 +72,7 @@ class myPoint{
     static dist(a, b){
         return Math.sqrt((a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y))
     }
+    static Lerp(a, b, t){
+        return new myPoint(a.x*(1-t) + b.x*t, a.y*(1-t) + b.y*t)
+    }
 }

@@ -2,8 +2,14 @@ function initSVG() {
     svgMain = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svgMain.setAttribute('viewBox', `0 0 ${width} ${height}`);
     document.body.appendChild(svgMain);
+    svgLayers = []
+    for (let i = 0; i < 3; i++) {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        svgMain.appendChild(svg);
+        svgLayers.push(svg)
+    }
 
-    // on keyboard 's', save svg
     document.addEventListener('keydown', e => {
         if (e.key == 's') {
             const serializer = new XMLSerializer();
@@ -25,12 +31,13 @@ function initSVG() {
 }
 
 class SVGLine {
-    constructor(p1, p2, makeMirror = false) {
+    constructor(p1, p2, makeMirror = false, parent = svgLayers[0]) {
+        this.parent = parent
         this.element = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         this.set(p1, p2)
         this.element.setAttribute('stroke-linecap', 'round');
         this.element.setAttribute('stroke', 'black');
-        svgMain.appendChild(this.element)
+        parent.appendChild(this.element)
         this.x1 = p1.x; this.y1 = p1.y;
         this.x2 = p2.x; this.y2 = p2.y;
         this.color = 'black'
@@ -89,93 +96,93 @@ class SVGLine {
         this.isVisible = vis
     }
     remove() {
-        svgMain.removeChild(this.element)
+        this.parent.removeChild(this.element)
         if (this.mirror) this.mirror.remove()
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-const renderParams = {
-    mirror: false,
-    backLine:{
-        show: false,
-        thickness: 10, color: 'orange',
-        dashed: true,
-    },
-    line: {
-        show: true,
-        thickness: 5, color: 'black',
-    },
-    network: {
-        show: false,
-        points: round_random(4), minDist: 2, maxDist: round_random(10),
-        opacity: .2, thickness: 1,
-    },
-    offsetLine: {
-        show: false,
-        thickness: 2, opacity: 1,
-        rotation: 0.3,
-        distance: 3, length: 0,
-        density: 1,
-    },
-    dots: {
-        show: false,
-        opacity: 50,
-        sum: 250, distX: 4, distY: 30,
-        angle: random(Math.PI)
-    },
+class SVGCircle {
+    constructor(x, y, r, color, parent = svgLayers[0]) {
+        this.parent = parent
+        this.element = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        this.set(x, y, r)
+        parent.appendChild(this.element)
+        this.x = x; this.y = y;
+        this.r = r; this.color = color
+        this.element.setAttribute('fill', color);
+        this.isVisible = true
+        this.weight = 1
+    }
+    set(x, y, r = this.r) {
+        if (x == this.x && y == this.y && r == this.r) return
+        this.element.setAttribute('cx', x);
+        this.element.setAttribute('cy', y);
+        this.element.setAttribute('r', r);
+        this.x = x; this.y = y;
+        this.r = r
+    }
+    fill(color) {
+        if (color == this.color) return
+        this.element.setAttribute('fill', color);
+        this.color = color
+    }
+    visible(vis) {
+        if (vis == this.isVisible) return
+        this.element.setAttribute('visibility', vis ? 'visible' : 'hidden');
+        this.isVisible = vis
+    }
+    remove() {
+        this.parent.removeChild(this.element)
+    }
 }
+
 
 
 function updateParticleSVG(part) {
     part.preRender()
 
     let sw = (part.vel.length + 1) * renderParams.line.thickness
-    sw *= 1 - (part.num / particles.length)
+    if (renderParams.line.aged) sw *= 1 - (part.num / particles.length)
     sw = constrain(sw, 0, 20)
 
-    part.connections.forEach(c => {
-        if ('svg' in c) {
-            if (!c.svg) {
-                c.svg = { }
-                
-                if (renderParams.backLine.show) {
-                    c.svg.back = new SVGLine(part.pos, c.body.pos, renderParams.mirror)
-                    c.svg.back.strokeWeight(renderParams.backLine.thickness)
-                    c.svg.back.stroke(renderParams.backLine.color)
-                    if (!renderParams.backLine.dashed) svgMain.insertBefore(c.svg.back.element, svgMain.firstChild)
-                }
-                c.svg.main = new SVGLine(part.pos, c.body.pos, renderParams.mirror)
-                c.svg.main.stroke(renderParams.line.color)
-            }
-            let showLine = part.pos.dist(c.body.pos) < minGoodDistance
+    if (renderParams.line.show || renderParams.backLine.show) {
+        part.connections.forEach(c => {
+            if ('svg' in c) {
+                if (!c.svg) {
+                    c.svg = {}
 
-            c.svg.main.set(part.pos, c.body.pos)
-            c.svg.main.strokeWeight(sw)
-            c.svg.main.visible(showLine)
-            if (c.svg.back) {
-                c.svg.back.set(part.pos, c.body.pos)
-                c.svg.back.visible(showLine)
+                    if (renderParams.backLine.show) {
+                        c.svg.back = new SVGLine(part.pos, c.body.pos, renderParams.mirror)
+                        c.svg.back.strokeWeight(renderParams.backLine.thickness)
+                        c.svg.back.stroke(renderParams.backLine.color)
+                        if (!renderParams.backLine.dashed) c.svg.back.parent.insertBefore(c.svg.back.element, c.svg.back.parent.firstChild)
+                    }
+                    if (renderParams.line.show) {
+                        c.svg.line = new SVGLine(part.pos, c.body.pos, renderParams.mirror)
+                        c.svg.line.stroke(renderParams.line.color)
+                    }
+                }
+                let showLine = part.pos.dist(c.body.pos) < minGoodDistance
+
+                if (c.svg.line) {
+                    c.svg.line.set(part.pos, c.body.pos)
+                    c.svg.line.strokeWeight(sw)
+                    c.svg.line.visible(showLine)
+                }
+                if (c.svg.back) {
+                    c.svg.back.set(part.pos, c.body.pos)
+                    if (renderParams.backLine.aged) c.svg.back.strokeWeight(renderParams.backLine.thickness * (1 - (part.num / particles.length)))
+                    c.svg.back.visible(showLine)
+                }
             }
-        }
-    })
+        })
+    }
 
     if (renderParams.offsetLine.show) {
         if (!part.svg.offset) {
             const p1 = p(-renderParams.offsetLine.length, -renderParams.offsetLine.distance)
             const p2 = p(renderParams.offsetLine.length, -renderParams.offsetLine.distance)
             part.svg.offset = new SVGLine(p1, p2, renderParams.mirror)
-            part.svg.offset.stroke(hexColor(0, 0, 0, renderParams.offsetLine.opacity))
+            part.svg.offset.stroke(renderParams.offsetLine.color)
             part.svg.offset.strokeWeight(renderParams.offsetLine.thickness)
         }
         part.svg.offset.element.setAttribute('transform', `translate(${part.pos.x},${part.pos.y}) rotate(${renderParams.offsetLine.rotation * 180 + part.offsetDir.angle * 180 / Math.PI})`)
@@ -186,12 +193,12 @@ function updateParticleSVG(part) {
         if (!part.svg.network1 && part.age > 30) {
             const neighbor1 = part.getNeighbor(part, round_random(renderParams.network.minDist, renderParams.network.maxDist))
             part.svg.network1 = new SVGLine(part.pos, neighbor1.pos, renderParams.mirror)
-            part.svg.network1.stroke(hexColor(0, 0, 0, renderParams.network.opacity))
+            part.svg.network1.stroke(renderParams.network.color)
             part.svg.network1.strokeWeight(renderParams.network.thickness)
             part.svg.network1.neighbor = neighbor1
             const neighbor2 = part.getNeighbor(part, round_random(renderParams.network.minDist, renderParams.network.maxDist))
             part.svg.network2 = new SVGLine(part.pos, neighbor2.pos, renderParams.mirror)
-            part.svg.network2.stroke(hexColor(0, 0, 0, renderParams.network.opacity))
+            part.svg.network2.stroke(renderParams.network.color)
             part.svg.network2.strokeWeight(renderParams.network.thickness)
             part.svg.network2.neighbor = neighbor2
         }
@@ -202,8 +209,60 @@ function updateParticleSVG(part) {
             part.svg.network2.visible(true)
         }
     }
+
+    if (part.svg.others) {
+        part.svg.others.forEach(svg => svg.set(part.pos.x, part.pos.y))
+    }
+
+    if (renderParams.dots.show) {
+        if (!part.svg.dots) part.svg.dots = createDotsSVG()
+        part.svg.dots.setAttribute('transform', `translate(${part.pos.x},${part.pos.y}) rotate(${part.offsetDir.angle * 180 / Math.PI})`)
+    }
 }
 
-function hexColor(r, g, b, a) {
+function getColor(r, g, b, a) {
+    if (!g){
+        if (Array.isArray(r)) return `rgb(${r[0]},${r[1]},${r[2]})`
+        else return `rgb(${r},${r},${r})`
+    }
+    if (!b) {
+        if (Array.isArray(r)) return `rgba(${r[0]},${r[1]},${r[2]},${g})`
+        else return `rgba(${r},${r},${r},${g})`
+    }
+    if (!a) return `rgb(${r},${g},${b})`
     return `rgba(${r},${g},${b},${a})`
+}
+
+
+
+// this function creates a canvas element, draws some random dots on it, 
+// then creates an svg element displaying the image of the canvas
+function createDotsSVG() {
+    const canvas = document.createElement('canvas')
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 100 * dpr
+    canvas.height = 100 * dpr
+    const ctx = canvas.getContext('2d')
+    // ctx.scale(dpr, dpr);
+    ctx.fillStyle = renderParams.dots.color
+
+    ctx.translate(canvas.width / 2, canvas.height / 2)
+    ctx.rotate(renderParams.dots.angle)
+    for (let i = 0; i < renderParams.dots.sum; i++) {
+        const x = random() * random() * renderParams.dots.distX * (random() < .5 ? -1 : 1)
+        const y = random() * random() * renderParams.dots.distY * (random() < .5 ? -1 : 1)
+        ctx.fillRect(x, y, 1, 1)
+    }
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    const img = document.createElementNS('http://www.w3.org/2000/svg', 'image')
+    img.setAttribute('href', canvas.toDataURL())
+    img.setAttribute('width', canvas.width / dpr)
+    img.setAttribute('height', canvas.height / dpr)
+    img.setAttribute('x', -canvas.width / dpr / 2)
+    img.setAttribute('y', -canvas.width / dpr / 2)
+    g.appendChild(img)
+    svgLayers[0].appendChild(g)
+    canvas.remove()
+    return g
 }
