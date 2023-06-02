@@ -1,27 +1,29 @@
 function initParams() {
     mainColors = choose(palletes).sort(() => random() - 0.5)
 
+    const withAged = random() < 0.5
+
     renderParams = {
-        mirror: false,
+        mirror: random()<0.5,
 
         line: {
-            show: true, color: mainColors[1],
-            thickness: 2, aged: true,
+            show: random()<0.5, color: mainColors[1],
+            thickness: 2, aged: withAged,
         },
         backLine: {
             show: random() < .5,
             thickness: random(5, 15), color: choose([mainColors[2], mainColors[0]]),
-            dashed: random() < 0.5,aged:true
+            dashed: random() < 0.5, aged: withAged && random() < 0.5,
         },
 
         network: {
-            show: random() < 0.2,
+            show: random() < .5,
             color: choose([mainColors[1], mainColors[2]]) + '44',
             points: round_random(4), minDist: 2, maxDist: 3,
             thickness: 1,
         },
         offsetLine: {
-            show: random() < 0.8,
+            show: random() < .5,
             color: choose([mainColors[1], mainColors[2]]),
             thickness: 2,
             rotation: 0,

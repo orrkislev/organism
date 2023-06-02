@@ -90,7 +90,7 @@ class SVGLine {
     }
     visible(vis, x = this.x1) {
         if (this.mirror && vis == true) vis = x > width / 2
-        if (vis == this.isVisible) return
+        // if (vis == this.isVisible) return
         this.element.setAttribute('visibility', vis ? 'visible' : 'hidden');
         if (this.mirror) this.mirror.element.setAttribute('visibility', vis ? 'visible' : 'hidden');
         this.isVisible = vis
@@ -182,10 +182,13 @@ function updateParticleSVG(part) {
             const p1 = p(-renderParams.offsetLine.length, -renderParams.offsetLine.distance)
             const p2 = p(renderParams.offsetLine.length, -renderParams.offsetLine.distance)
             part.svg.offset = new SVGLine(p1, p2, renderParams.mirror)
+            if (renderParams.mirror) part.svg.offset.mirror.set(p1,p2)
             part.svg.offset.stroke(renderParams.offsetLine.color)
             part.svg.offset.strokeWeight(renderParams.offsetLine.thickness)
         }
         part.svg.offset.element.setAttribute('transform', `translate(${part.pos.x},${part.pos.y}) rotate(${renderParams.offsetLine.rotation * 180 + part.offsetDir.angle * 180 / Math.PI})`)
+        if (renderParams.mirror) 
+            part.svg.offset.mirror.element.setAttribute('transform', `translate(${width-part.pos.x},${part.pos.y}) rotate(${-90+renderParams.offsetLine.rotation * 180 + part.offsetDir.angle * 180 / Math.PI})`)
         part.svg.offset.visible(true, part.pos.x)
     }
 
@@ -212,11 +215,22 @@ function updateParticleSVG(part) {
 
     if (part.svg.others) {
         part.svg.others.forEach(svg => svg.set(part.pos.x, part.pos.y))
+        
     }
 
     if (renderParams.dots.show) {
-        if (!part.svg.dots) part.svg.dots = createDotsSVG()
+        if (!part.svg.dots) {
+            part.svg.dots = createDotsSVG()
+            if (renderParams.mirror) part.svg.dotsMirror = createDotsSVG()
+        }
         part.svg.dots.setAttribute('transform', `translate(${part.pos.x},${part.pos.y}) rotate(${part.offsetDir.angle * 180 / Math.PI})`)
+        if (renderParams.mirror) {
+            part.svg.dotsMirror.setAttribute('transform', `translate(${width-part.pos.x},${part.pos.y}) rotate(${180+part.offsetDir.angle * 180 / Math.PI})`)
+            const isVisible =  part.pos.x > width / 2
+            part.svg.dots.setAttribute('visibility', isVisible ? 'visible' : 'hidden')
+            part.svg.dotsMirror.setAttribute('visibility', isVisible ? 'visible' : 'hidden')
+
+        }
     }
 }
 

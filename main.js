@@ -1,7 +1,7 @@
 const withEnds = false
 const minGoodDistance = 50
 
-const palletes = [["#E26D02","#252926","#E5DDC1"],["#191438","#E51A23","#EDDFDB"],["#FEC400","#33201B","#5A5B64"],["#F30209","#0C0AAD","#F4FCF8"],["#7A64D8","#E4FE02","#161312"],["#efece9","#090906","#efece9"],["#181a1e","#fffaff","#181a1e"],["#D7A1E7","#4406D2","#ECEDE9"],["#B5D6F4","#023BA5","#F4F5F4"],["#f39237","#191923","#fbfef9"],["#DB2800","#012631","#FCFCD6"],["#1268BF","#100C29","#FBEFD7"],["#41aa6d","#262525","#eaefea"],["#B51612","#0F0F0C","#e3e3df"],["#0d0b0b","#d80056","#ecedef"],["#b80c09","#fbfbff","#040f16"],["#3e92cc","#fffaff","#1e1b18"],["#fa110d","#000000","#fec3f0"],["#dd1c1a","#fff1d0","#06aed5"],["#e63946","#f1faee","#1d3557"],["#2b2d42","#edf2f4","#d90429"],["#E4CA18","#0A2349","#0168A7"]]
+const palletes = [["#E26D02", "#252926", "#E5DDC1"], ["#191438", "#E51A23", "#EDDFDB"], ["#FEC400", "#33201B", "#5A5B64"], ["#F30209", "#0C0AAD", "#F4FCF8"], ["#7A64D8", "#E4FE02", "#161312"], ["#efece9", "#090906", "#efece9"], ["#181a1e", "#fffaff", "#181a1e"], ["#D7A1E7", "#4406D2", "#ECEDE9"], ["#B5D6F4", "#023BA5", "#F4F5F4"], ["#f39237", "#191923", "#fbfef9"], ["#DB2800", "#012631", "#FCFCD6"], ["#1268BF", "#100C29", "#FBEFD7"], ["#41aa6d", "#262525", "#eaefea"], ["#B51612", "#0F0F0C", "#e3e3df"], ["#0d0b0b", "#d80056", "#ecedef"], ["#b80c09", "#fbfbff", "#040f16"], ["#3e92cc", "#fffaff", "#1e1b18"], ["#fa110d", "#000000", "#fec3f0"], ["#dd1c1a", "#fff1d0", "#06aed5"], ["#e63946", "#f1faee", "#1d3557"], ["#2b2d42", "#edf2f4", "#d90429"], ["#E4CA18", "#0A2349", "#0168A7"]]
 
 
 async function setup() {
@@ -9,7 +9,7 @@ async function setup() {
     height = window.innerHeight
 
     initParams()
-    
+
     document.body.style.backgroundColor = mainColors[0]
 
     initSVG()
@@ -23,12 +23,12 @@ setup()
 async function makeOrganism() {
     mainObj = new Organism(p(width / 2, height / 2))
 
-    await asyncGrow(mainObj, { times: 5, grow: 10, passChance: 0.99, close: 5 })
+    await asyncGrow(mainObj, { times: 5, grow: 20, passChance: 0.99, close: 5 })
     await waitFrames(100)
 
 
     // -----   EXTEND   -----
-    asyncExtend(mainObj, { sum: 10, length: 10 })
+    asyncExtend(mainObj, { sum: 10, length: ()=>random(1,20),})
     await waitFrames(80)
 
     await mainObj.closeBranches(3)
@@ -131,19 +131,20 @@ async function asyncGrow(organism, params) {
 async function asyncExtend(organism, params) {
     const sum = params.sum || 1
     const extenders = []
+    const lengths = []
     for (let i = 0; i < sum; i++) {
         const currParticle = choose(organism.particles)
         const newParticle = currParticle.extend()
-        extenders.push([newParticle])
+        extenders.push({ particles: [newParticle], length: getParam(params.length, i) })
     }
-    const l = params.length || 30
-    for (let i = 0; i < l; i++) {
-        for (let j = 0; j < extenders.length; j++) {
-            const ext = extenders[j]
-            const newParticle = ext[ext.length - 1].extend()
-            organism.particles.push(newParticle)
-            extenders[j].push(newParticle)
-        }
+    while (extenders.some(e => e.particles.length < e.length)) {
+        extenders.forEach(e => {
+            if (e.particles.length < e.length) {
+                const newParticle = e.particles[e.particles.length - 1].extend()
+                organism.particles.push(newParticle)
+                e.particles.push(newParticle)
+            }
+        })
         if (params.wait) await waitFrames(params.wait)
     }
     return extenders
@@ -162,4 +163,9 @@ async function asyncMultiply(organism, params) {
         others.push(newOrg)
     }
     return others
+}
+
+function getParam(param, def) {
+    if (param instanceof Function) return param()
+    return param || def
 }
