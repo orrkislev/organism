@@ -4,9 +4,6 @@ const minGoodDistance = 50
 
 
 async function setup() {
-    width = window.innerWidth
-    height = window.innerHeight
-
     initParams()
 
     document.body.style.backgroundColor = mainColors[0]
@@ -22,14 +19,14 @@ setup()
 async function makeOrganism() {
     mainObj = new Organism(p(width / 2, height / 2))
 
-    await asyncGrow(mainObj, { times: initialGrowth / 20, grow: 20, passChance: 0.99, close: 5 })
+    await asyncGrow(mainObj, { times: initialGrowth / 20, grow: 20, passChance: random(.99,.9999), close: round_random(5) })
     await waitFrames(100)
 
 
     // -----   EXTEND   -----
     await asyncExtend(mainObj, { sum: extenders, length: () => extendersLength * random(.8, 1.2), })
     await waitFrames(80)
-    await mainObj.closeBranches(3)
+    await mainObj.closeBranches(round_random(6))
     await waitFrames(80)
 
     if (moreGrowth > 0)

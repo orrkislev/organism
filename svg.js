@@ -1,7 +1,30 @@
 function initSVG() {
+    const ratio = .8
+    if (window.innerWidth < window.innerHeight * ratio) {
+        width = window.innerWidth
+        height = width / ratio
+    } else {
+        height = window.innerHeight
+        width = height * ratio
+    }
+
+    console.log(width,height)
+
     svgMain = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svgMain.setAttribute('width', width);
+    svgMain.setAttribute('height', height);
+    // center the svg
+    // svgMain.style.position = 'absolute'
+    // svgMain.style.left = '50%'
+    // svgMain.style.top = '50%'
+    // svgMain.style.transform = 'translate(-50%, -50%)'
+
+    width = 700
+    height = Math.round(width / ratio)
     svgMain.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    document.body.appendChild(svgMain);
+    // append to <main>
+    document.querySelector('main').appendChild(svgMain);
+    // document.body.appendChild(svgMain);
 
     document.addEventListener('keydown', e => {
         if (e.key == 's') {
@@ -131,24 +154,25 @@ class SVGCircle {
 function updateParticleSVG(part) {
     part.preRender()
 
-    let sw = (part.vel.length + 1) * renderParams.line.thickness
-    if (renderParams.line.aged) sw *= 1 - (part.num / particles.length)
-    if (renderParams.line.pulsating) sw *= (Math.sin(part.age / 80) + 1) / 2
-    sw = constrain(sw, 0, 20)
-
-    if (renderParams.line.show || renderParams.backLine.show) {
+    if (renderParams.line || renderParams.backLine) {
+        if (renderParams.line) {
+            sw = (part.vel.length + 1) * renderParams.line.thickness
+            if (renderParams.line.aged) sw *= 1 - (part.num / particles.length)
+            if (renderParams.line.pulsating) sw *= (Math.sin(part.age / 80) + 1) / 2
+            sw = constrain(sw, 0, 20)
+        }
         part.connections.forEach(c => {
             if ('svg' in c) {
                 if (!c.svg) {
                     c.svg = {}
 
-                    if (renderParams.backLine.show) {
+                    if (renderParams.backLine) {
                         c.svg.back = new SVGLine(part.pos, c.body.pos, renderParams.mirror)
                         c.svg.back.strokeWeight(renderParams.backLine.thickness)
                         c.svg.back.stroke(renderParams.backLine.color)
                         if (!renderParams.backLine.dashed) svgMain.insertBefore(c.svg.back.element, svgMain.firstChild)
                     }
-                    if (renderParams.line.show) {
+                    if (renderParams.line) {
                         c.svg.line = new SVGLine(part.pos, c.body.pos, renderParams.mirror)
                         c.svg.line.stroke(renderParams.line.color)
                     }
@@ -169,7 +193,7 @@ function updateParticleSVG(part) {
         })
     }
 
-    if (renderParams.offsetLine.show) {
+    if (renderParams.offsetLine) {
         if (!part.svg.offset) {
             const p1 = p(-renderParams.offsetLine.length, -renderParams.offsetLine.distance)
             const p2 = p(renderParams.offsetLine.length, -renderParams.offsetLine.distance)
@@ -184,16 +208,16 @@ function updateParticleSVG(part) {
         part.svg.offset.visible(true, part.pos.x)
     }
 
-    if (renderParams.network.show) {
+    if (renderParams.network) {
         if (!part.svg.network1 && part.age > 30) {
             const neighbor1 = part.getNeighbor(part, round_random(renderParams.network.minDist, renderParams.network.maxDist))
             part.svg.network1 = new SVGLine(part.pos, neighbor1.pos, renderParams.mirror)
-            part.svg.network1.stroke(renderParams.network.color)
+            part.svg.network1.stroke(renderParams.network.color + '44')
             part.svg.network1.strokeWeight(renderParams.network.thickness)
             part.svg.network1.neighbor = neighbor1
             const neighbor2 = part.getNeighbor(part, round_random(renderParams.network.minDist, renderParams.network.maxDist))
             part.svg.network2 = new SVGLine(part.pos, neighbor2.pos, renderParams.mirror)
-            part.svg.network2.stroke(renderParams.network.color)
+            part.svg.network2.stroke(renderParams.network.color + '44')
             part.svg.network2.strokeWeight(renderParams.network.thickness)
             part.svg.network2.neighbor = neighbor2
         }
@@ -210,7 +234,7 @@ function updateParticleSVG(part) {
 
     }
 
-    if (renderParams.dots.show) {
+    if (renderParams.dots) {
         if (!part.svg.dots) {
             part.svg.dots = createDotsSVG()
             if (renderParams.mirror) part.svg.dotsMirror = createDotsSVG()
@@ -250,7 +274,7 @@ function createDotsSVG() {
     canvas.height = 100 * dpr
     const ctx = canvas.getContext('2d')
     // ctx.scale(dpr, dpr);
-    ctx.fillStyle = renderParams.dots.color
+    ctx.fillStyle = renderParams.dots.color+'88'
 
     ctx.translate(canvas.width / 2, canvas.height / 2)
     ctx.rotate(renderParams.dots.angle)

@@ -80,7 +80,7 @@ class Particle {
 
         const d = this.pos.dist(other.pos)
         if (d < 1 || d > 30) return
-        const force = myPoint.sub(this.pos, other.pos).normalize(.2 / d)
+        const force = myPoint.sub(this.pos, other.pos).normalize(.1 / d)
         this.applyForce(force)
         other.applyForce(force.mult(-1))
     }
@@ -88,19 +88,19 @@ class Particle {
     avoidWalls() {
         const d = this.pos.distxy(width / 2, height / 2) - wallRadius
         if (d < 0) return
-        const force = myPoint.sub(p(width / 2, height / 2), this.pos).normalize(d * 0.1)
+        const force = myPoint.sub(p(width / 2, height / 2), this.pos).normalize(d * 0.05)
         this.applyForce(force)
     }
 
     update() {
         this.connections.forEach(c => {
             const d = this.pos.dist(c.body.pos) - c.length
-            const force = myPoint.sub(c.body.pos, this.pos).normalize(d * 0.1)
+            const force = myPoint.sub(c.body.pos, this.pos).normalize(d * 0.05)
             this.applyForce(force)
         })
         this.vel.add(this.acc)
         if (this.vel.length > 1) this.vel.normalize()
-        this.vel.mult(0.9)
+        this.vel.mult(0.95)
         this.pos.add(this.vel)
         this.acc.zero()
         this.age++
