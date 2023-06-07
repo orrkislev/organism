@@ -5,7 +5,7 @@
     //---- do not edit the following code (you can indent as you wish)
     let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
     var fxhash = "oo" + Array(49).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
-    // fxhash = "oo6iCPDuDNt8RTiL9mQs8wkiSBdUQR1wzcacjNXuQwGkVsx7LgD"
+    // fxhash = "ooTmGfjkG2UypN5grN3batEYDHeyrg1wSBdnH4hXt417r8F6zp9"
     let b58dec = str=>[...str].reduce((p,c)=>p*alphabet.length+alphabet.indexOf(c)|0, 0)
     let fxhashTrunc = fxhash.slice(2)
     let regex = new RegExp(".{" + ((fxhashTrunc.length/4)|0) + "}", 'g')
@@ -28,6 +28,13 @@
       console.log("fxhash: TRIGGER PREVIEW")
     }
     //---- /do not edit the following code
+
+    // on press f - copy fxhash to clipboard
+    document.addEventListener('keydown', function(event) {
+      if(event.keyCode == 70) {
+        navigator.clipboard.writeText(fxhash)
+      }
+    })
   </script>
 
   <script language="javascript" type="text/javascript" src="./utils/utils.js"></script>

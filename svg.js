@@ -2,13 +2,6 @@ function initSVG() {
     svgMain = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svgMain.setAttribute('viewBox', `0 0 ${width} ${height}`);
     document.body.appendChild(svgMain);
-    svgLayers = []
-    for (let i = 0; i < 3; i++) {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-        svgMain.appendChild(svg);
-        svgLayers.push(svg)
-    }
 
     document.addEventListener('keydown', e => {
         if (e.key == 's') {
@@ -31,13 +24,12 @@ function initSVG() {
 }
 
 class SVGLine {
-    constructor(p1, p2, makeMirror = false, parent = svgLayers[0]) {
-        this.parent = parent
+    constructor(p1, p2, makeMirror = false) {
         this.element = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         this.set(p1, p2)
         this.element.setAttribute('stroke-linecap', 'round');
         this.element.setAttribute('stroke', 'black');
-        parent.appendChild(this.element)
+        svgMain.appendChild(this.element)
         this.x1 = p1.x; this.y1 = p1.y;
         this.x2 = p2.x; this.y2 = p2.y;
         this.color = 'black'
@@ -96,16 +88,15 @@ class SVGLine {
         this.isVisible = vis
     }
     remove() {
-        this.parent.removeChild(this.element)
+        svgMain.removeChild(this.element)
         if (this.mirror) this.mirror.remove()
     }
 }
 class SVGCircle {
-    constructor(x, y, r, color, parent = svgLayers[0]) {
-        this.parent = parent
+    constructor(x, y, r, color) {
         this.element = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         this.set(x, y, r)
-        parent.appendChild(this.element)
+        svgMain.appendChild(this.element)
         this.x = x; this.y = y;
         this.r = r; this.color = color
         this.element.setAttribute('fill', color);
@@ -131,7 +122,7 @@ class SVGCircle {
         this.isVisible = vis
     }
     remove() {
-        this.parent.removeChild(this.element)
+        svgMain.removeChild(this.element)
     }
 }
 
@@ -142,6 +133,7 @@ function updateParticleSVG(part) {
 
     let sw = (part.vel.length + 1) * renderParams.line.thickness
     if (renderParams.line.aged) sw *= 1 - (part.num / particles.length)
+    if (renderParams.line.pulsating) sw *= (Math.sin(part.age / 80) + 1) / 2
     sw = constrain(sw, 0, 20)
 
     if (renderParams.line.show || renderParams.backLine.show) {
@@ -154,7 +146,7 @@ function updateParticleSVG(part) {
                         c.svg.back = new SVGLine(part.pos, c.body.pos, renderParams.mirror)
                         c.svg.back.strokeWeight(renderParams.backLine.thickness)
                         c.svg.back.stroke(renderParams.backLine.color)
-                        if (!renderParams.backLine.dashed) c.svg.back.parent.insertBefore(c.svg.back.element, c.svg.back.parent.firstChild)
+                        if (!renderParams.backLine.dashed) svgMain.insertBefore(c.svg.back.element, svgMain.firstChild)
                     }
                     if (renderParams.line.show) {
                         c.svg.line = new SVGLine(part.pos, c.body.pos, renderParams.mirror)
@@ -182,13 +174,13 @@ function updateParticleSVG(part) {
             const p1 = p(-renderParams.offsetLine.length, -renderParams.offsetLine.distance)
             const p2 = p(renderParams.offsetLine.length, -renderParams.offsetLine.distance)
             part.svg.offset = new SVGLine(p1, p2, renderParams.mirror)
-            if (renderParams.mirror) part.svg.offset.mirror.set(p1,p2)
+            if (renderParams.mirror) part.svg.offset.mirror.set(p1, p2)
             part.svg.offset.stroke(renderParams.offsetLine.color)
             part.svg.offset.strokeWeight(renderParams.offsetLine.thickness)
         }
         part.svg.offset.element.setAttribute('transform', `translate(${part.pos.x},${part.pos.y}) rotate(${renderParams.offsetLine.rotation * 180 + part.offsetDir.angle * 180 / Math.PI})`)
-        if (renderParams.mirror) 
-            part.svg.offset.mirror.element.setAttribute('transform', `translate(${width-part.pos.x},${part.pos.y}) rotate(${-90+renderParams.offsetLine.rotation * 180 + part.offsetDir.angle * 180 / Math.PI})`)
+        if (renderParams.mirror)
+            part.svg.offset.mirror.element.setAttribute('transform', `translate(${width - part.pos.x},${part.pos.y}) rotate(${-90 + renderParams.offsetLine.rotation * 180 + part.offsetDir.angle * 180 / Math.PI})`)
         part.svg.offset.visible(true, part.pos.x)
     }
 
@@ -215,7 +207,7 @@ function updateParticleSVG(part) {
 
     if (part.svg.others) {
         part.svg.others.forEach(svg => svg.set(part.pos.x, part.pos.y))
-        
+
     }
 
     if (renderParams.dots.show) {
@@ -225,8 +217,8 @@ function updateParticleSVG(part) {
         }
         part.svg.dots.setAttribute('transform', `translate(${part.pos.x},${part.pos.y}) rotate(${part.offsetDir.angle * 180 / Math.PI})`)
         if (renderParams.mirror) {
-            part.svg.dotsMirror.setAttribute('transform', `translate(${width-part.pos.x},${part.pos.y}) rotate(${180+part.offsetDir.angle * 180 / Math.PI})`)
-            const isVisible =  part.pos.x > width / 2
+            part.svg.dotsMirror.setAttribute('transform', `translate(${width - part.pos.x},${part.pos.y}) rotate(${180 + part.offsetDir.angle * 180 / Math.PI})`)
+            const isVisible = part.pos.x > width / 2
             part.svg.dots.setAttribute('visibility', isVisible ? 'visible' : 'hidden')
             part.svg.dotsMirror.setAttribute('visibility', isVisible ? 'visible' : 'hidden')
 
@@ -235,7 +227,7 @@ function updateParticleSVG(part) {
 }
 
 function getColor(r, g, b, a) {
-    if (!g){
+    if (!g) {
         if (Array.isArray(r)) return `rgb(${r[0]},${r[1]},${r[2]})`
         else return `rgb(${r},${r},${r})`
     }
@@ -276,7 +268,8 @@ function createDotsSVG() {
     img.setAttribute('x', -canvas.width / dpr / 2)
     img.setAttribute('y', -canvas.width / dpr / 2)
     g.appendChild(img)
-    svgLayers[0].appendChild(g)
+    svgMain.appendChild(g)
     canvas.remove()
     return g
 }
+

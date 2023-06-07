@@ -1,7 +1,6 @@
 const withEnds = false
 const minGoodDistance = 50
 
-const palletes = [["#E26D02", "#252926", "#E5DDC1"], ["#191438", "#E51A23", "#EDDFDB"], ["#FEC400", "#33201B", "#5A5B64"], ["#F30209", "#0C0AAD", "#F4FCF8"], ["#7A64D8", "#E4FE02", "#161312"], ["#efece9", "#090906", "#efece9"], ["#181a1e", "#fffaff", "#181a1e"], ["#D7A1E7", "#4406D2", "#ECEDE9"], ["#B5D6F4", "#023BA5", "#F4F5F4"], ["#f39237", "#191923", "#fbfef9"], ["#DB2800", "#012631", "#FCFCD6"], ["#1268BF", "#100C29", "#FBEFD7"], ["#41aa6d", "#262525", "#eaefea"], ["#B51612", "#0F0F0C", "#e3e3df"], ["#0d0b0b", "#d80056", "#ecedef"], ["#b80c09", "#fbfbff", "#040f16"], ["#3e92cc", "#fffaff", "#1e1b18"], ["#fa110d", "#000000", "#fec3f0"], ["#dd1c1a", "#fff1d0", "#06aed5"], ["#e63946", "#f1faee", "#1d3557"], ["#2b2d42", "#edf2f4", "#d90429"], ["#E4CA18", "#0A2349", "#0168A7"]]
 
 
 async function setup() {
@@ -23,20 +22,24 @@ setup()
 async function makeOrganism() {
     mainObj = new Organism(p(width / 2, height / 2))
 
-    await asyncGrow(mainObj, { times: 5, grow: 20, passChance: 0.99, close: 5 })
+    await asyncGrow(mainObj, { times: initialGrowth / 20, grow: 20, passChance: 0.99, close: 5 })
     await waitFrames(100)
 
 
     // -----   EXTEND   -----
-    asyncExtend(mainObj, { sum: 10, length: ()=>random(1,20),})
+    await asyncExtend(mainObj, { sum: extenders, length: () => extendersLength * random(.8, 1.2), })
     await waitFrames(80)
-
     await mainObj.closeBranches(3)
     await waitFrames(80)
 
+    if (moreGrowth > 0)
+        await asyncGrow(mainObj, { times: moreGrowth/5, grow: moreGrowth, passChance: 0.99, close: 5 })
+
     // -----   SPIKES   -----
-    // asyncGrow(mainObj, { times: 5, grow: 30, passChance: 0.5, close: 3 })
-    // await waitFrames(25)
+    if (withSpikes) {
+        asyncGrow(mainObj, { times: 5, grow: 30, passChance: 0.5, close: 3 })
+        await waitFrames(25)
+    }
 
 
     // const others = await asyncMultiply(mainObj, { sum: 10, length: 3, passChance: 1, closeChance: 0 })

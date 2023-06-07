@@ -4,7 +4,7 @@ class Walker {
         this.organism = organism
         this.lastPart = choose(organism.particles)
         this.pos = this.lastPart.pos.clone()
-        this.svg = new SVGCircle(this.pos.x, this.pos.y, 5, 'black', svgLayers[1])
+        this.svg = new SVGCircle(this.pos.x, this.pos.y, 5, 'black')
         this.getTarget()
         walkers.push(this)
     }

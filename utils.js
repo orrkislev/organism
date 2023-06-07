@@ -28,3 +28,4 @@ const abs = Math.abs
 const floor = Math.floor
 const round = Math.round
 const constrain = (n, min, max) => Math.min(Math.max(n, min), max)
+const map = (n, start1, stop1, start2, stop2) => ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2
