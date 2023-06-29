@@ -2,11 +2,13 @@ const withEnds = false
 const minGoodDistance = 50
 
 
-
 async function setup() {
     initParams()
 
-    document.body.style.backgroundColor = mainColors[0]
+    document.body.setAttribute('style', `
+        background: radial-gradient(circle, ${mainColors[0]} 0% , ${mainColors[1]} 300%);
+    `)
+
 
     initSVG()
     initParticles()
@@ -19,18 +21,18 @@ setup()
 async function makeOrganism() {
     mainObj = new Organism(p(width / 2, height / 2))
 
-    await asyncGrow(mainObj, { times: initialGrowth / 50, grow: 50, passChance: random(.5,1), close: round_random(5) })
+    await asyncGrow(mainObj, { times: initialGrowth / 50, grow: 50, passChance: random(.5, 1), close: round_random(5) })
     await waitFrames(100)
 
 
     // -----   EXTEND   -----
     await asyncExtend(mainObj, { sum: extenders, length: () => extendersLength * random(.8, 1.2), })
     await waitFrames(80)
-    await mainObj.closeBranches(round_random(6))
+    await mainObj.closeBranches(random() * random() * 6)
     await waitFrames(80)
 
     if (moreGrowth > 0)
-        await asyncGrow(mainObj, { times: moreGrowth/5, grow: moreGrowth, passChance: 0.99, close: 5 })
+        await asyncGrow(mainObj, { times: moreGrowth / 5, grow: moreGrowth, passChance: 0.99, close: 5 })
 
     // -----   SPIKES   -----
     if (withSpikes) {
@@ -39,40 +41,47 @@ async function makeOrganism() {
     }
 
 
-    const others = await asyncMultiply(mainObj, { sum: 10, length: 3, passChance: 1, closeChance: random() })
+    if (children > 0) {
+        const others = await asyncMultiply(mainObj, { sum: 10, length: 3, passChance: 1, closeChance: random() })
 
-    // const longOthers = []
-    // await waitFrames(50)
-    // while (others.length > 0) {
+        if (childrenConnect) {
 
-    //     const other1 = others.pop()
-    //     let other2, other3, other4
-    //     if (others.length > 0) other2 = others.pop()
-    //     if (others.length > 0) other3 = others.pop()
-    //     if (others.length > 0) other4 = others.pop()
-    //     if (other4) {
-    //         other4.particles[0].connect(other3.particles[other3.particles.length - 1])
-    //         other3.particles.push(...other4.particles)
-    //     }
-    //     if (other3) {
-    //         other3.particles[0].connect(other2.particles[other2.particles.length - 1])
-    //         other2.particles.push(...other3.particles)
-    //     }
-    //     if (other2) {
-    //         other2.particles[0].connect(other1.particles[other1.particles.length - 1])
-    //         other1.particles.push(...other2.particles)
-    //     }
-    //     longOthers.push(other1)
-    // }
+            const longOthers = []
+            await waitFrames(50)
+            while (others.length > 0) {
 
-    // await waitFrames(100)
-    // while (longOthers.length > 0) {
-    //     const other = longOthers.pop()
-    //     const p1 = choose(mainObj.particles)
-    //     const p2 = choose(other.particles)
-    //     p1.connect(p2)
-    //     await waitFrames(1)
-    // }
+                const other1 = others.pop()
+                let other2, other3, other4
+                if (others.length > 0) other2 = others.pop()
+                if (others.length > 0) other3 = others.pop()
+                if (others.length > 0) other4 = others.pop()
+                if (other4) {
+                    other4.particles[0].connect(other3.particles[other3.particles.length - 1])
+                    other3.particles.push(...other4.particles)
+                }
+                if (other3) {
+                    other3.particles[0].connect(other2.particles[other2.particles.length - 1])
+                    other2.particles.push(...other3.particles)
+                }
+                if (other2) {
+                    other2.particles[0].connect(other1.particles[other1.particles.length - 1])
+                    other1.particles.push(...other2.particles)
+                }
+                longOthers.push(other1)
+            }
+
+            if (childrenMerge) {
+                await waitFrames(100)
+                while (longOthers.length > 0) {
+                    const other = longOthers.pop()
+                    const p1 = choose(mainObj.particles)
+                    const p2 = choose(other.particles)
+                    p1.connect(p2)
+                    await waitFrames(1)
+                }
+            }
+        }
+    }
 
     // // / -----------------
     // // connect the other organisms

@@ -25,7 +25,6 @@ const palletes = [
 
 function initParams() {
     mainColors = choose(palletes).sort(() => random() - 0.5)
-    console.log(mainColors)
 
     const withAged = random() < 0.5
     const showParams = [random() < 0.5, random() < 0.5, random() < 0.5, random() < 0.5]
@@ -40,7 +39,7 @@ function initParams() {
     if (showParams[0])
         renderParams.line = {
             color: penColor,
-            thickness: 2, aged: withAged, pulsing: random() < 1,
+            thickness: 2, aged: withAged, pulsing: random() < .5,
         }
 
     if (showParams[1]) {
@@ -78,15 +77,33 @@ function initParams() {
         }
     }
 
+    let growCount = 0
     initialGrowth = random(40, 160)
-    extenders = round_random(3, 10)
-    extendersLength = map(extenders, 3, 20, 60, 5)
-    if (random()<.3){
-        extenders = 0
-        initialGrowth += 300
+    growCount += initialGrowth
+
+    extenders = 0
+    extendersLength = 0
+    if (random() < 0.3) {
+        extenders = round_random(3, 10)
+        extendersLength = map(extenders, 3, 20, 60, 5)
+        growCount += extendersLength * extenders
+    } else {
+        const moreInitial = random(100)
+        initialGrowth += moreInitial
+        growCount += moreInitial
     }
+
     moreGrowth = random() < 0.5 ? 0 : random(10, 40)
-    withSpikes = random() < 0.2
+    growCount += moreGrowth
+
+    withSpikes = random() < 0.1
+    if (withSpikes) growCount += 50
+
+    children = 0
+    if (growCount < 150 && random() < 0.5) children = round_random(3, 30)
+    childrenConnect = random() < 0.5
+    childrenMerge = random() < 0.5
+
 
     animationSpeed = round_random(2, 8)
 }

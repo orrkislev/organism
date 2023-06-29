@@ -8,23 +8,14 @@ function initSVG() {
         width = height * ratio
     }
 
-    console.log(width,height)
-
     svgMain = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svgMain.setAttribute('width', width);
     svgMain.setAttribute('height', height);
-    // center the svg
-    // svgMain.style.position = 'absolute'
-    // svgMain.style.left = '50%'
-    // svgMain.style.top = '50%'
-    // svgMain.style.transform = 'translate(-50%, -50%)'
 
     width = 700
     height = Math.round(width / ratio)
     svgMain.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    // append to <main>
     document.querySelector('main').appendChild(svgMain);
-    // document.body.appendChild(svgMain);
 
     document.addEventListener('keydown', e => {
         if (e.key == 's') {
