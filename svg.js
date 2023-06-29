@@ -158,7 +158,7 @@ function updateParticleSVG(part) {
         if (renderParams.line) {
             sw = (part.vel.length + 1) * renderParams.line.thickness
             if (renderParams.line.aged) sw *= 1 - (part.num / particles.length)
-            if (renderParams.line.pulsating) sw *= (Math.sin(part.age / 80) + 1) / 2
+            if (renderParams.line.pulsing) sw *= (Math.sin(part.age / 80) + 1) / 2
             sw = constrain(sw, 0, 20)
         }
         part.connections.forEach(c => {

@@ -19,7 +19,7 @@ setup()
 async function makeOrganism() {
     mainObj = new Organism(p(width / 2, height / 2))
 
-    await asyncGrow(mainObj, { times: initialGrowth / 20, grow: 20, passChance: random(.99,.9999), close: round_random(5) })
+    await asyncGrow(mainObj, { times: initialGrowth / 50, grow: 50, passChance: random(.5,1), close: round_random(5) })
     await waitFrames(100)
 
 
@@ -39,7 +39,7 @@ async function makeOrganism() {
     }
 
 
-    // const others = await asyncMultiply(mainObj, { sum: 10, length: 3, passChance: 1, closeChance: 0 })
+    const others = await asyncMultiply(mainObj, { sum: 10, length: 3, passChance: 1, closeChance: random() })
 
     // const longOthers = []
     // await waitFrames(50)
@@ -107,7 +107,7 @@ async function makeOrganism() {
 
 async function mainLoop() {
     while (true) {
-        updateParticles(7)
+        updateParticles(animationSpeed)
         organisms.forEach(o => o.updateSVG())
         walkers.forEach(w => w.walk())
         tick()
@@ -164,6 +164,7 @@ async function asyncMultiply(organism, params) {
     }
     return others
 }
+
 
 function getParam(param, def) {
     if (param instanceof Function) return param()

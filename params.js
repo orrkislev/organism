@@ -40,7 +40,7 @@ function initParams() {
     if (showParams[0])
         renderParams.line = {
             color: penColor,
-            thickness: 2, aged: withAged, pulsating: random() < 0.5,
+            thickness: 2, aged: withAged, pulsing: random() < 1,
         }
 
     if (showParams[1]) {
@@ -87,4 +87,6 @@ function initParams() {
     }
     moreGrowth = random() < 0.5 ? 0 : random(10, 40)
     withSpikes = random() < 0.2
+
+    animationSpeed = round_random(2, 8)
 }
