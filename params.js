@@ -33,7 +33,7 @@ function initParams() {
     const [bgColor, penColor, accentColor] = mainColors
 
     renderParams = {
-        mirror: random() < 0.5,
+        mirror: random() < 0.35,
     }
 
     if (showParams[0])

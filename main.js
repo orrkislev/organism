@@ -6,7 +6,7 @@ async function setup() {
     initParams()
 
     document.body.setAttribute('style', `
-        background: radial-gradient(circle, ${mainColors[0]} 0% , ${mainColors[1]} 300%);
+        background: radial-gradient(circle, ${mainColors[0]} 0% , ${mainColors[1]} 500%);
     `)
 
 
@@ -47,7 +47,7 @@ async function makeOrganism() {
         if (childrenConnect) {
 
             const longOthers = []
-            await waitFrames(50)
+            await waitFrames(100)
             while (others.length > 0) {
 
                 const other1 = others.pop()
