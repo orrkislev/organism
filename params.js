@@ -36,6 +36,11 @@ function initParams() {
         mirror: random() < 0.35,
     }
 
+    renderParams.circleChance = 0
+    if (showParams.filter(x => x).length <= 2 && random()<0.5) {
+        renderParams.circleChance = random(.2)
+    }
+
     if (showParams[0])
         renderParams.line = {
             color: penColor,

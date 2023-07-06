@@ -33,6 +33,7 @@ class Particle {
         this.seperated = []
         this.hashClient = hashGrid.add(this)
         this.svg = {}
+        this.withDoughnut = random() < renderParams.circleChance
     }
     extend() {
         const newParticle = new Particle(this.pos.clone(), this.organism)
@@ -114,14 +115,14 @@ class Particle {
     }
 
     preRender() {
-        this.drawLines = []
+        // this.drawLines = []
 
         let dir = p(0, 0)
         this.connections.forEach(c => {
             const dirTo = myPoint.sub(c.body.pos, this.pos)
             dir.add(dirTo.clone().normalize().rotate(90))
-            if (abs(dirTo.length - c.length) > minGoodDistance) return
-            this.drawLines.push(c.body.pos)
+            // if (abs(dirTo.length - c.length) > minGoodDistance) return
+            // this.drawLines.push(c.body.pos)
         })
         dir.normalize()
         this.offsetDir.lerp(dir, .001)

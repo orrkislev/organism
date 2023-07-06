@@ -96,7 +96,6 @@ class SVGLine {
     }
     visible(vis, x = this.x1) {
         if (this.mirror && vis == true) vis = x > width / 2
-        // if (vis == this.isVisible) return
         this.element.setAttribute('visibility', vis ? 'visible' : 'hidden');
         if (this.mirror) this.mirror.element.setAttribute('visibility', vis ? 'visible' : 'hidden');
         this.isVisible = vis
@@ -107,15 +106,16 @@ class SVGLine {
     }
 }
 class SVGCircle {
-    constructor(x, y, r, color) {
+    constructor(x, y, r, makeMirror = false) {
         this.element = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         this.set(x, y, r)
         svgMain.appendChild(this.element)
         this.x = x; this.y = y;
-        this.r = r; this.color = color
-        this.element.setAttribute('fill', color);
+        this.r = r;
         this.isVisible = true
         this.weight = 1
+
+        if (makeMirror) this.mirror = new SVGCircle(width - x, y, r)
     }
     set(x, y, r = this.r) {
         if (x == this.x && y == this.y && r == this.r) return
@@ -124,15 +124,24 @@ class SVGCircle {
         this.element.setAttribute('r', r);
         this.x = x; this.y = y;
         this.r = r
+        if (this.mirror) this.mirror.set(width - x, y, r)
     }
     fill(color) {
         if (color == this.color) return
         this.element.setAttribute('fill', color);
         this.color = color
+        if (this.mirror) this.mirror.fill(color)
     }
-    visible(vis) {
-        if (vis == this.isVisible) return
+    stroke(color) {
+        if (color == this.color) return
+        this.element.setAttribute('stroke', color);
+        this.color = color
+        if (this.mirror) this.mirror.stroke(color)
+    }
+    visible(vis, x = this.x) {
+        if (this.mirror && vis == true) vis = x > width / 2
         this.element.setAttribute('visibility', vis ? 'visible' : 'hidden');
+        if (this.mirror) this.mirror.element.setAttribute('visibility', vis ? 'visible' : 'hidden');
         this.isVisible = vis
     }
     remove() {
@@ -220,9 +229,16 @@ function updateParticleSVG(part) {
         }
     }
 
-    if (part.svg.others) {
-        part.svg.others.forEach(svg => svg.set(part.pos.x, part.pos.y))
-
+    if (part.withDoughnut) {
+        if (!part.svg.doughnut) {
+            part.svg.doughnut = new SVGCircle(part.pos.x, part.pos.y, 5, renderParams.mirror)
+            if (renderParams.line) part.svg.doughnut.stroke(renderParams.line.color)
+            else if (renderParams.backLine) part.svg.doughnut.stroke(renderParams.backLine.color)
+            else part.svg.doughnut.stroke(mainColors[1])
+            part.svg.doughnut.fill(mainColors[0])
+        }
+        part.svg.doughnut.set(part.pos.x, part.pos.y)
+        part.svg.doughnut.visible(true)
     }
 
     if (renderParams.dots) {
@@ -236,7 +252,6 @@ function updateParticleSVG(part) {
             const isVisible = part.pos.x > width / 2
             part.svg.dots.setAttribute('visibility', isVisible ? 'visible' : 'hidden')
             part.svg.dotsMirror.setAttribute('visibility', isVisible ? 'visible' : 'hidden')
-
         }
     }
 }
@@ -265,7 +280,7 @@ function createDotsSVG() {
     canvas.height = 100 * dpr
     const ctx = canvas.getContext('2d')
     // ctx.scale(dpr, dpr);
-    ctx.fillStyle = renderParams.dots.color+'88'
+    ctx.fillStyle = renderParams.dots.color + '88'
 
     ctx.translate(canvas.width / 2, canvas.height / 2)
     ctx.rotate(renderParams.dots.angle)
