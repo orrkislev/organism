@@ -234,6 +234,8 @@ function updateParticleSVG(part) {
             part.svg.doughnut = new SVGCircle(part.pos.x, part.pos.y, 5, renderParams.mirror)
             if (renderParams.line) part.svg.doughnut.stroke(renderParams.line.color)
             else if (renderParams.backLine) part.svg.doughnut.stroke(renderParams.backLine.color)
+            else if (renderParams.offsetLine) part.svg.doughnut.stroke(renderParams.offsetLine.color)
+            else if (renderParams.dots) part.svg.doughnut.stroke(renderParams.dots.color)
             else part.svg.doughnut.stroke(mainColors[1])
             part.svg.doughnut.fill(mainColors[0])
         }
