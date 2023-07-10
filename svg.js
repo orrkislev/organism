@@ -14,7 +14,8 @@ function initSVG() {
 
     width = 700
     height = Math.round(width / ratio)
-    svgMain.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    // svgMain.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svgMain.setAttribute('viewBox', `100 100 500 ${Math.round(500/ratio)}`);
     document.querySelector('main').appendChild(svgMain);
 
     document.addEventListener('keydown', e => {
@@ -92,7 +93,6 @@ class SVGLine {
         if (weight == this.weight) return
         this.element.setAttribute('stroke-width', weight);
         if (this.mirror) this.mirror.strokeWeight(weight)
-
     }
     visible(vis, x = this.x1) {
         if (this.mirror && vis == true) vis = x > width / 2
@@ -138,6 +138,11 @@ class SVGCircle {
         this.color = color
         if (this.mirror) this.mirror.stroke(color)
     }
+    strokeWeight(weight) {
+        if (weight == this.weight) return
+        this.element.setAttribute('stroke-width', weight);
+        if (this.mirror) this.mirror.strokeWeight(weight)
+    }
     visible(vis, x = this.x) {
         if (this.mirror && vis == true) vis = x > width / 2
         this.element.setAttribute('visibility', vis ? 'visible' : 'hidden');
@@ -160,6 +165,7 @@ function updateParticleSVG(part) {
             if (renderParams.line.aged) sw *= 1 - (part.num / particles.length)
             if (renderParams.line.pulsing) sw *= (Math.sin(part.age / 80) + 1) / 2
             sw = constrain(sw, 0, 20)
+            if (part.svg.doughnut) part.svg.doughnut.strokeWeight(sw)
         }
         part.connections.forEach(c => {
             if ('svg' in c) {
@@ -249,6 +255,7 @@ function updateParticleSVG(part) {
             if (renderParams.mirror) part.svg.dotsMirror = createDotsSVG()
         }
         part.svg.dots.setAttribute('transform', `translate(${part.pos.x},${part.pos.y}) rotate(${part.offsetDir.angle * 180 / Math.PI})`)
+
         if (renderParams.mirror) {
             part.svg.dotsMirror.setAttribute('transform', `translate(${width - part.pos.x},${part.pos.y}) rotate(${180 + part.offsetDir.angle * 180 / Math.PI})`)
             const isVisible = part.pos.x > width / 2

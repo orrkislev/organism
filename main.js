@@ -1,12 +1,28 @@
 const withEnds = false
 const minGoodDistance = 50
 
+function lerp(a, b, t) {
+    return a * (1 - t) + b * t
+}
+function lerpHexColors(c1, c2, t) {
+    const r1 = parseInt(c1.substring(1, 3), 16)
+    const g1 = parseInt(c1.substring(3, 5), 16)
+    const b1 = parseInt(c1.substring(5, 7), 16)
+    const r2 = parseInt(c2.substring(1, 3), 16)
+    const g2 = parseInt(c2.substring(3, 5), 16)
+    const b2 = parseInt(c2.substring(5, 7), 16)
+    const r = round(lerp(r1, r2, t))
+    const g = round(lerp(g1, g2, t))
+    const b = round(lerp(b1, b2, t))
+    return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
+}
 
 async function setup() {
     initParams()
 
+    const bgColor2 = lerpHexColors(mainColors[0], mainColors[1], .2)
     document.body.setAttribute('style', `
-        background: radial-gradient(circle, ${mainColors[0]} 0% , ${mainColors[1]} 500%);
+        background: radial-gradient(circle, ${mainColors[0]} 0% , ${bgColor2} 100%);
     `)
 
 
@@ -21,7 +37,7 @@ setup()
 async function makeOrganism() {
     mainObj = new Organism(p(width / 2, height / 2))
 
-    await asyncGrow(mainObj, { times: initialGrowth / 50, grow: 50, passChance: random(.5, 1), close: round_random(5) })
+    await asyncGrow(mainObj, { times: initialGrowth / 50, grow: 50, passChance: random(.7, 1), close: round_random(5) })
     await waitFrames(100)
 
 
@@ -32,7 +48,7 @@ async function makeOrganism() {
     await waitFrames(80)
 
     if (moreGrowth > 0)
-        await asyncGrow(mainObj, { times: moreGrowth / 5, grow: moreGrowth, passChance: 0.99, close: 5 })
+        await asyncGrow(mainObj, { times: moreGrowth / 5, grow: moreGrowth, passChance: 0.99, close: ()=>random(5) })
 
     // -----   SPIKES   -----
     if (withSpikes) {
@@ -42,7 +58,7 @@ async function makeOrganism() {
 
 
     if (children > 0) {
-        const others = await asyncMultiply(mainObj, { sum: 10, length: 3, passChance: 1, closeChance: random() })
+        const others = await asyncMultiply(mainObj, { sum: children, length: 3, passChance: 1, closeChance: random() })
 
         if (childrenConnect) {
 
@@ -108,6 +124,20 @@ async function makeOrganism() {
     //     const obj = new Organism(area.position)
     //     await asyncGrow(obj, { times: 1, grow: 30, passChance: 0.99, close: 1, wait: 10 })
     // }
+
+    // await waitFrames(200)
+    // canvas = await html2canvas(document.body).then(canvas => {
+    //     const a = document.createElement('a')
+    //     a.href = canvas.toDataURL()
+    //     a.download = 'image.png'
+    //     document.body.appendChild(a)
+    //     a.click()
+    //     document.body.removeChild(a)
+
+    //     setTimeout(() => {
+    //         window.location.reload()
+    //     }, 1000)
+    // })
 }
 
 
@@ -118,7 +148,7 @@ async function mainLoop() {
     while (true) {
         updateParticles(animationSpeed)
         organisms.forEach(o => o.updateSVG())
-        walkers.forEach(w => w.walk())
+        // walkers.forEach(w => w.walk())
         tick()
         await timeout(1)
     }
@@ -132,7 +162,7 @@ async function asyncGrow(organism, params) {
     const t = params.times || 1
     for (let i = 0; i < t; i++) {
         await organism.grow(params.grow || 1, params.passChance || 0.99)
-        if (params.close) await organism.closeBranches(params.close)
+        if (params.close) await organism.closeBranches(getParam(params.close))
         if (params.wait) await waitFrames(params.wait)
     }
 }

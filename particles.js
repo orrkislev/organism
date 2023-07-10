@@ -40,7 +40,7 @@ class Particle {
         let dir = p(random(-1, 1), random(-1, 1))
         if (this.connections.length > 0) {
             const other = choose(this.connections).body.pos
-            dir = myPoint.sub(other, this.pos).normalize(5).rotate(random(-5, 5))
+            dir = myPoint.sub(other, this.pos).normalize(5).rotate(random(-50,50))
         }
         newParticle.pos.add(dir)
         this.connect(newParticle, 5)
@@ -121,6 +121,7 @@ class Particle {
         this.connections.forEach(c => {
             const dirTo = myPoint.sub(c.body.pos, this.pos)
             dir.add(dirTo.clone().normalize().rotate(90))
+            
             // if (abs(dirTo.length - c.length) > minGoodDistance) return
             // this.drawLines.push(c.body.pos)
         })

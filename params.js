@@ -90,7 +90,7 @@ function initParams() {
     extendersLength = 0
     if (random() < 0.3) {
         extenders = round_random(3, 10)
-        extendersLength = map(extenders, 3, 20, 60, 5)
+        extendersLength = map(extenders, 3, 20, 16, 3)
         growCount += extendersLength * extenders
     } else {
         const moreInitial = random(100)
@@ -105,7 +105,7 @@ function initParams() {
     if (withSpikes) growCount += 50
 
     children = 0
-    if (growCount < 150 && random() < 0.5) children = round_random(3, 30)
+    if (growCount < 160 && random() < 0.5) children = round_random(3, 60)
     childrenConnect = random() < 0.5
     childrenMerge = random() < 0.5
 
