@@ -25,6 +25,7 @@ const palletes = [
 
 function initParams() {
     mainColors = choose(palletes).sort(() => random() - 0.5)
+    mainColors = palletes[3].sort(() => random() - 0.5)
 
     const withAged = random() < 0.5
     const showParams = [random() < 0.5, random() < 0.5, random() < 0.5, random() < 0.5]

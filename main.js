@@ -4,6 +4,9 @@ const minGoodDistance = 50
 function lerp(a, b, t) {
     return a * (1 - t) + b * t
 }
+function toHex(d) {
+    return  ("0"+(Number(d).toString(16))).slice(-2).toUpperCase()
+}
 function lerpHexColors(c1, c2, t) {
     const r1 = parseInt(c1.substring(1, 3), 16)
     const g1 = parseInt(c1.substring(3, 5), 16)
@@ -14,7 +17,7 @@ function lerpHexColors(c1, c2, t) {
     const r = round(lerp(r1, r2, t))
     const g = round(lerp(g1, g2, t))
     const b = round(lerp(b1, b2, t))
-    return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`
 }
 
 async function setup() {

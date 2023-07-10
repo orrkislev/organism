@@ -99,6 +99,11 @@ class Particle {
             const force = myPoint.sub(c.body.pos, this.pos).normalize(d * 0.05)
             this.applyForce(force)
         })
+        if (this.age < 500){
+            const n = noise.simplex2(this.pos.x / 400, this.pos.y / 400, tickCount / 600)
+            const force = new myPoint(0,1).rotate(n * 1020).mult(0.02)
+            this.vel.add(force)
+        }
         this.vel.add(this.acc)
         if (this.vel.length > 1) this.vel.normalize()
         this.vel.mult(0.95)
