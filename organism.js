@@ -19,7 +19,7 @@ class Organism {
                 const otherConnections = currParticle.connections.filter(c => c.body != lastParticle)
 
                 if ((otherConnections.length > this.maxConnections) ||
-                    (otherConnections.length > 0 && random() < this.passChance*0.1 + 0.9)) {
+                    (otherConnections.length > 0 && random() < this.passChance * 0.1 + 0.9)) {
                     const other = choose(otherConnections).body
                     lastParticle = currParticle
                     currParticle = other
@@ -194,14 +194,14 @@ class Organism {
         return areas
     }
 
-    show(){
+    show() {
         if (this.hide) return
         this.particles.forEach(renderParticle)
     }
-    show2(){
+    show2() {
         this.particles.forEach(renderParticle2)
     }
-    updateSVG(){
+    updateSVG() {
         this.particles.forEach(updateParticleSVG)
     }
 }

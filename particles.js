@@ -1,6 +1,6 @@
 
 function initParticles() {
-    wallRadius = min(width, height) / 2
+    wallRadius = min(width, height) * .3
     hashGrid = new HashGrid(width, height, 5)
 }
 
@@ -14,6 +14,11 @@ function updateParticles(times = 7) {
         })
 
         particles.forEach(part => {
+            if (!renderParams.mirror && part.age < 400) {
+                const n = noise.perlin2(part.pos.x / 300, part.pos.y / 300, tickCount / 400)
+                const force = new myPoint(0,-1).rotate(n * Math.PI * 2).mult(0.005)
+                part.applyForce(force)
+            }
             part.avoidWalls()
             part.update()
         })
@@ -99,11 +104,6 @@ class Particle {
             const force = myPoint.sub(c.body.pos, this.pos).normalize(d * 0.05)
             this.applyForce(force)
         })
-        if (this.age < 500){
-            const n = noise.simplex2(this.pos.x / 400, this.pos.y / 400, tickCount / 600)
-            const force = new myPoint(0,1).rotate(n * 1020).mult(0.02)
-            this.vel.add(force)
-        }
         this.vel.add(this.acc)
         if (this.vel.length > 1) this.vel.normalize()
         this.vel.mult(0.95)
