@@ -21,6 +21,18 @@ function lerpHexColors(c1, c2, t) {
 }
 
 async function setup() {
+    window.addEventListener('keydown', e => {
+        if (e.key == 'f') {
+            // copy to clipboard the variable 'fxhash'
+            const el = document.createElement('textarea')
+            el.value = fxhash
+            document.body.appendChild(el)
+            el.select()
+            document.execCommand('copy')
+            document.body.removeChild(el)
+        }
+    })
+
     initParams()
 
     const bgColor2 = lerpHexColors(mainColors[0], mainColors[1], .2)
