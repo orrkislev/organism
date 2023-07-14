@@ -194,13 +194,6 @@ class Organism {
         return areas
     }
 
-    show() {
-        if (this.hide) return
-        this.particles.forEach(renderParticle)
-    }
-    show2() {
-        this.particles.forEach(renderParticle2)
-    }
     updateSVG() {
         this.particles.forEach(updateParticleSVG)
     }

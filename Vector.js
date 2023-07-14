@@ -81,3 +81,5 @@ class myPoint {
         return new myPoint(a.x * (1 - t) + b.x * t, a.y * (1 - t) + b.y * t)
     }
 }
+
+const p = (x, y) => new myPoint(x, y)

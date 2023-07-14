@@ -120,15 +120,10 @@ class Particle {
     }
 
     preRender() {
-        // this.drawLines = []
-
         let dir = p(0, 0)
         this.connections.forEach(c => {
             const dirTo = myPoint.sub(c.body.pos, this.pos)
             dir.add(dirTo.clone().normalize().rotate(90))
-            
-            // if (abs(dirTo.length - c.length) > minGoodDistance) return
-            // this.drawLines.push(c.body.pos)
         })
         dir.normalize()
         this.offsetDir.lerp(dir, .001)

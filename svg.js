@@ -1,11 +1,11 @@
+windowRatio = .8
 function initSVG() {
-    const ratio = .8
-    if (window.innerWidth < window.innerHeight * ratio) {
+    if (window.innerWidth < window.innerHeight * windowRatio) {
         width = window.innerWidth
-        height = width / ratio
+        height = width / windowRatio
     } else {
         height = window.innerHeight
-        width = height * ratio
+        width = height * windowRatio
     }
 
     svgMain = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -13,29 +13,9 @@ function initSVG() {
     svgMain.setAttribute('height', height);
 
     width = 700
-    height = Math.round(width / ratio)
-    // svgMain.setAttribute('viewBox', `0 0 ${width} ${height}`);
-    svgMain.setAttribute('viewBox', `100 100 500 ${Math.round(500/ratio)}`);
+    height = Math.round(width / windowRatio)
+    svgMain.setAttribute('viewBox', `100 100 500 ${Math.round(500/windowRatio)}`);
     document.querySelector('main').appendChild(svgMain);
-
-    document.addEventListener('keydown', e => {
-        if (e.key == 's') {
-            const serializer = new XMLSerializer();
-            let source = serializer.serializeToString(svgMain);
-
-            if (!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
-                source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-            }
-            source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-            var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
-            const downloadLink = document.createElement('a')
-            downloadLink.href = url
-            downloadLink.download = 'svg.svg'
-            document.body.appendChild(downloadLink)
-            downloadLink.click()
-            document.body.removeChild(downloadLink)
-        }
-    })
 }
 
 class SVGLine {

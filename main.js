@@ -1,44 +1,22 @@
 const withEnds = false
 const minGoodDistance = 50
 
-function lerp(a, b, t) {
-    return a * (1 - t) + b * t
-}
-function toHex(d) {
-    return  ("0"+(Number(d).toString(16))).slice(-2).toUpperCase()
-}
-function lerpHexColors(c1, c2, t) {
-    const r1 = parseInt(c1.substring(1, 3), 16)
-    const g1 = parseInt(c1.substring(3, 5), 16)
-    const b1 = parseInt(c1.substring(5, 7), 16)
-    const r2 = parseInt(c2.substring(1, 3), 16)
-    const g2 = parseInt(c2.substring(3, 5), 16)
-    const b2 = parseInt(c2.substring(5, 7), 16)
-    const r = round(lerp(r1, r2, t))
-    const g = round(lerp(g1, g2, t))
-    const b = round(lerp(b1, b2, t))
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`
-}
-
 async function setup() {
-    window.addEventListener('keydown', e => {
-        if (e.key == 'f') {
-            // copy to clipboard the variable 'fxhash'
-            const el = document.createElement('textarea')
-            el.value = fxhash
-            document.body.appendChild(el)
-            el.select()
-            document.execCommand('copy')
-            document.body.removeChild(el)
+    albaSeed = (alba.params.seed || alba._testSeed());
+    window.addEventListener('keydown', (e) => {
+        if (e.key == 's') {
+            navigator.clipboard.writeText(albaSeed)
         }
     })
+
+
+    prng = alba.prng(albaSeed);
 
     initParams()
 
     const bgColor2 = lerpHexColors(mainColors[0], mainColors[1], .2)
-    document.body.setAttribute('style', `
-        background: radial-gradient(circle, ${mainColors[0]} 0% , ${bgColor2} 100%);
-    `)
+    
+    document.querySelector('main').style.background = `radial-gradient(circle at ${Math.round(window.innerWidth/2)}px ${Math.round(window.innerHeight/2)}px, ${mainColors[0]} 0% ,${bgColor2} 100%) `
 
 
     initSVG()
@@ -63,7 +41,7 @@ async function makeOrganism() {
     await waitFrames(80)
 
     if (moreGrowth > 0)
-        await asyncGrow(mainObj, { times: moreGrowth / 5, grow: moreGrowth, passChance: 0.99, close: ()=>random(5) })
+        await asyncGrow(mainObj, { times: moreGrowth / 5, grow: moreGrowth, passChance: 0.99, close: () => random(5) })
 
     // -----   SPIKES   -----
     if (withSpikes) {
@@ -114,45 +92,36 @@ async function makeOrganism() {
         }
     }
 
-    // // / -----------------
-    // // connect the other organisms
-    // // / -----------------
-    // await waitFrames(25)
-    // while (others.length > 1) {
-    //     other1 = choose(others)
-    //     other2 = choose(others)
-    //     if (other1 == other2) continue
-    //     const lastParticle1 = other1.particles[other1.particles.length - 1]
-    //     const otherIndex = floor(random(other2.particles.length - 1))
-    //     const lastParticle2 = other2.particles[otherIndex]
-    //     lastParticle1.connect(lastParticle2)
-    //     other1.particles.push(...other2.particles)
-    //     others = others.filter(o => o != other2)
-    //     await waitFrames(1)
-    // }
+    await waitFrames(200)
 
-    // await waitFrames(120)
-    // await asyncGrow(others[0], { times: 30, grow: 5, passChance: 0.5 })
+    if (alba.params.width || true) {
+        html2canvas(document.body).then(canvas => {
+            const canvasWidth = alba.params.width || 500
+            const canvasHeight = canvasWidth / windowRatio
 
-    // areas = await mainObj.getAreas().slice(0, 10)
-    // for (area of areas) {
-    //     const obj = new Organism(area.position)
-    //     await asyncGrow(obj, { times: 1, grow: 30, passChance: 0.99, close: 1, wait: 10 })
-    // }
+            const finalCanvas = document.createElement("canvas");
+            const ctx = finalCanvas.getContext("2d");
+            const pixelRatio = window.devicePixelRatio || 1;
+            finalCanvas.width = canvasWidth * pixelRatio;
+            finalCanvas.height = canvasHeight * pixelRatio;
 
-    // await waitFrames(200)
-    // canvas = await html2canvas(document.body).then(canvas => {
-    //     const a = document.createElement('a')
-    //     a.href = canvas.toDataURL()
-    //     a.download = 'image.png'
-    //     document.body.appendChild(a)
-    //     a.click()
-    //     document.body.removeChild(a)
+            const scale = Math.max(finalCanvas.width / canvas.width, finalCanvas.height / canvas.height);
+            ctx.translate(finalCanvas.width / 2, finalCanvas.height / 2);
+            ctx.scale(scale, scale);
+            ctx.translate(-canvas.width / 2, -canvas.height / 2);
+            ctx.drawImage(canvas, 0, 0);
 
-    //     setTimeout(() => {
-    //         window.location.reload()
-    //     }, 1000)
-    // })
+
+
+            document.body.appendChild(finalCanvas)
+
+            alba.setComplete(true)
+
+            // setTimeout(() => {
+            //     document.body.removeChild(finalCanvas)
+            // }, 1000)
+        })
+    }
 }
 
 
@@ -163,7 +132,6 @@ async function mainLoop() {
     while (true) {
         updateParticles(animationSpeed)
         organisms.forEach(o => o.updateSVG())
-        // walkers.forEach(w => w.walk())
         tick()
         await timeout(1)
     }
